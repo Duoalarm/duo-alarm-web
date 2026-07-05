@@ -51,6 +51,7 @@ const ARES_URL = "https://ares.gov.cz/ekonomicke-subjekty?ico=" + ICO;
 const DS_ID = "8e9pivu";
 const DS_URL = "https://www.mojedatovaschranka.cz/sds/detail.do?dbid=8e9pivu";
 const GOOGLE_REVIEWS = "https://www.google.com/maps/place/Duo+alarm/@50.2082022,15.8332223,17z/data=!4m8!3m7!1s0x25e977f666aba317:0x39664694ce8ca6c5!8m2!3d50.2082022!4d15.8332223!9m1!1b1!16s%2Fg%2F11x73b4qpd?entry=ttu";
+const GOOGLE_MAPS_PLACE = "https://www.google.com/maps/place/Duo+alarm/@50.2082022,15.8325786,19z/data=!3m1!4b1!4m6!3m5!1s0x25e977f666aba317:0x39664694ce8ca6c5!8m2!3d50.2082022!4d15.8332223!16s%2Fg%2F11x73b4qpd?entry=ttu&g_ep=EgoyMDI2MDYyOS4wIKXMDSoASAFQAw%3D%3D";
 const SITE_URL = "https://www.duoalarm.cz";
 
 const LOCAL_BUSINESS_SCHEMA = `<script type="application/ld+json">${JSON.stringify({
@@ -1048,7 +1049,7 @@ pages.push({
           <iframe title="Mapa: Komenského 264/5, Hradec Králové" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2553.4823817832025!2d15.830647376045297!3d50.208205604777135!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470c2b328ff4403d%3A0x7192e3a214a43f9e!2zS29tZW5za8OpaG8gMjY0LzUsIDUwMCAwMyBIcmFkZWMgS3LDoWxvdsOpIDM!5e0!3m2!1sen!2scz!4v1782405704656!5m2!1sen!2scz"></iframe>
         </div>
-        <a class="arrow-link" href="https://www.google.com/maps/search/?api=1&query=50.2081887,15.8332183" target="_blank" rel="noopener" style="margin-top:.9rem">Otevřít v Google Mapách ${I.arrow}</a>
+        <a class="arrow-link" href="${GOOGLE_MAPS_PLACE}" target="_blank" rel="noopener" style="margin-top:.9rem">Otevřít v Google Mapách ${I.arrow}</a>
       </div>
       <div id="poptavka" style="background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius-lg);padding:clamp(1.6rem,4vw,2.4rem)" data-reveal="100">
         <h3 style="margin-bottom:1.4rem">Napište nám</h3>
