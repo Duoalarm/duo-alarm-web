@@ -49,7 +49,7 @@ const EMAIL = "info@duoalarm.cz";
 const ICO = "23029595";
 const ARES_URL = "https://ares.gov.cz/ekonomicke-subjekty?ico=" + ICO;
 const DS_ID = "8e9pivu";
-const DS_URL = "https://www.mojedatovaschranka.cz/";
+const DS_URL = "https://www.mojedatovaschranka.cz/sds/detail.do?dbid=8e9pivu";
 const GOOGLE_REVIEWS = "https://www.google.com/maps/place/Duo+alarm/@50.2082022,15.8332223,17z/data=!4m8!3m7!1s0x25e977f666aba317:0x39664694ce8ca6c5!8m2!3d50.2082022!4d15.8332223!9m1!1b1!16s%2Fg%2F11x73b4qpd?entry=ttu";
 const SITE_URL = "https://www.duoalarm.cz";
 
