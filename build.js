@@ -972,7 +972,7 @@ pages.push({
       <div class="split-body" data-reveal>
         <span class="eyebrow">Kde působíme</span>
         <h2>Jsme ve dvou krajích</h2>
-        <p>Dorazíme za vámi po celém <strong>Královéhradeckém a Libereckém kraji</strong>. Dopravu počítáme z Hradce a vždy ji předem transparentně naceníme.</p>
+        <p>Působíme v <strong>Královéhradeckém a Libereckém kraji</strong>. Dopravu počítáme z Hradce a vždy ji předem transparentně naceníme.</p>
         <a class="btn btn-gold" href="kontakt.html#poptavka" style="margin-top:1.6rem">Ozvěte se nám ${I.arrow}</a>
       </div>
       <div class="aside-card map-card" data-reveal="100">${CZ_MAP}</div>
