@@ -8,18 +8,26 @@
   var toTop = document.querySelector("[data-to-top]");
   var goldBands = document.querySelectorAll(".band-gold");
   function onScroll() {
-    if (header) header.classList.toggle("scrolled", window.scrollY > 12);
+    // read layout geometry first, then apply all class changes, to avoid forced reflow
+    var scrolled = window.scrollY > 12;
+    var show = false, onGold = false;
     if (toTop) {
       var scrollable = document.documentElement.scrollHeight - window.innerHeight;
       var pct = scrollable > 0 ? window.scrollY / scrollable : 0;
-      toTop.classList.toggle("show", pct > 0.2);
-      // switch to dark style when the button overlaps a gold band (gold-on-gold is invisible)
-      var br = toTop.getBoundingClientRect();
-      var cx = br.left + br.width / 2, cy = br.top + br.height / 2, onGold = false;
-      for (var i = 0; i < goldBands.length; i++) {
-        var r = goldBands[i].getBoundingClientRect();
-        if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) { onGold = true; break; }
+      show = pct > 0.2;
+      if (show) {
+        // switch to dark style when the button overlaps a gold band (gold-on-gold is invisible)
+        var br = toTop.getBoundingClientRect();
+        var cx = br.left + br.width / 2, cy = br.top + br.height / 2;
+        for (var i = 0; i < goldBands.length; i++) {
+          var r = goldBands[i].getBoundingClientRect();
+          if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) { onGold = true; break; }
+        }
       }
+    }
+    if (header) header.classList.toggle("scrolled", scrolled);
+    if (toTop) {
+      toTop.classList.toggle("show", show);
       toTop.classList.toggle("on-gold", onGold);
     }
   }

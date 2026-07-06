@@ -26,11 +26,21 @@
 <!-- Google Tag Manager -->
 <script>window.dataLayer=window.dataLayer||[];window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});</script>
 <script>
-window.addEventListener('load', function(){
-  var f=document.getElementsByTagName('script')[0],j=document.createElement('script');
-  j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id=GTM-M8NTHCPJ';
-  f.parentNode.insertBefore(j,f);
-});
+(function () {
+  var loaded = false;
+  function loadGtm() {
+    if (loaded) return;
+    loaded = true;
+    events.forEach(function (e) { window.removeEventListener(e, loadGtm, { passive: true }); });
+    clearTimeout(timer);
+    var f = document.getElementsByTagName('script')[0], j = document.createElement('script');
+    j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-M8NTHCPJ';
+    f.parentNode.insertBefore(j, f);
+  }
+  var events = ['scroll', 'touchstart', 'mousemove', 'keydown'];
+  events.forEach(function (e) { window.addEventListener(e, loadGtm, { passive: true, once: true }); });
+  var timer = setTimeout(loadGtm, 4000);
+})();
 </script>
 <!-- End Google Tag Manager -->
 </head>
