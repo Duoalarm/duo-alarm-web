@@ -165,13 +165,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 function header(base, hideCta) {
   const dd = SERVICES.map(s =>
-    `<a href="${base}sluzby/${s.slug}.html"><span class="di">${I[s.icon]}</span><span>${s.title}</span></a>`
+    `<a href="${base}sluzby/${s.slug}"><span class="di">${I[s.icon]}</span><span>${s.title}</span></a>`
   ).join("\n");
   return `
 <header class="header">
   <div class="container">
     <nav class="nav" aria-label="Hlavní navigace">
-      <a class="brand" href="${base}index.html" aria-label="Duo alarm, domů">
+      <a class="brand" href="${base || "./"}" aria-label="Duo alarm, domů">
         ${LOGO}
       </a>
       <ul class="nav-links">
@@ -179,14 +179,14 @@ function header(base, hideCta) {
           <button class="nav-trigger" aria-haspopup="true" aria-expanded="false">Služby ${I.chevron}</button>
           <div class="dropdown">${dd}</div>
         </li>
-        <li><a href="${base}realizace.html" data-nav="realizace.html">Realizace</a></li>
-        <li><a href="${base}o-firme.html" data-nav="o-firme.html">O firmě</a></li>
-        <li><a href="${base}certifikace.html" data-nav="certifikace.html">Certifikace</a></li>
-        <li><a href="${base}kontakt.html" data-nav="kontakt.html">Kontakt</a></li>
+        <li><a href="${base}realizace" data-nav="realizace">Realizace</a></li>
+        <li><a href="${base}o-firme" data-nav="o-firme">O firmě</a></li>
+        <li><a href="${base}certifikace" data-nav="certifikace">Certifikace</a></li>
+        <li><a href="${base}kontakt" data-nav="kontakt">Kontakt</a></li>
       </ul>
       <div class="nav-actions">
         <a class="nav-phone" href="tel:${TEL_HREF}">${I.phone}${TEL}</a>
-        ${hideCta ? "" : `<a class="btn btn-gold" href="${base}kontakt.html"><span class="btn-label">Nezávazně poptat</span>${I.arrow}</a>`}
+        ${hideCta ? "" : `<a class="btn btn-gold" href="${base}kontakt"><span class="btn-label">Nezávazně poptat</span>${I.arrow}</a>`}
         <button class="nav-toggle" aria-label="Otevřít menu" aria-expanded="false"><span></span></button>
       </div>
     </nav>
@@ -194,12 +194,12 @@ function header(base, hideCta) {
 </header>
 <div class="mobile-menu" aria-label="Mobilní menu">
   <div class="mm-group">Služby</div>
-  ${SERVICES.map(s => `<a class="mm-sub" href="${base}sluzby/${s.slug}.html">${s.title}</a>`).join("\n  ")}
+  ${SERVICES.map(s => `<a class="mm-sub" href="${base}sluzby/${s.slug}">${s.title}</a>`).join("\n  ")}
   <div class="mm-group">Firma</div>
-  <a href="${base}realizace.html">Realizace</a>
-  <a href="${base}o-firme.html">O firmě</a>
-  <a href="${base}certifikace.html">Certifikace</a>
-  <a href="${base}kontakt.html">Kontakt</a>
+  <a href="${base}realizace">Realizace</a>
+  <a href="${base}o-firme">O firmě</a>
+  <a href="${base}certifikace">Certifikace</a>
+  <a href="${base}kontakt">Kontakt</a>
   <a class="btn btn-ghost btn-block" href="tel:${TEL_HREF}">${I.phone} ${TEL}</a>
 </div>`;
 }
@@ -223,7 +223,7 @@ function footer(base) {
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a class="brand" href="${base}index.html">${LOGO}</a>
+        <a class="brand" href="${base || "./"}">${LOGO}</a>
         <div class="footer-contact">
           <a href="tel:${TEL_HREF}">${I.phone} ${TEL}</a>
           <a href="mailto:${EMAIL}">${I.mail} ${EMAIL}</a>
@@ -231,16 +231,16 @@ function footer(base) {
       </div>
       <div class="footer-col">
         <h4>Naše služby</h4>
-        <ul>${SERVICES.slice(0,5).map(s => `<li><a href="${base}sluzby/${s.slug}.html">${s.title}</a></li>`).join("")}</ul>
+        <ul>${SERVICES.slice(0,5).map(s => `<li><a href="${base}sluzby/${s.slug}">${s.title}</a></li>`).join("")}</ul>
       </div>
       <div class="footer-col">
         <h4>Pro zákazníky</h4>
         <ul>
-          <li><a href="${base}certifikace.html">Certifikace</a></li>
-          <li><a href="${base}realizace.html">Realizace</a></li>
-          <li><a href="${base}o-firme.html">O firmě</a></li>
-          <li><a href="${base}kontakt.html">Kontakt</a></li>
-          <li><a href="${base}gdpr.html">GDPR</a></li>
+          <li><a href="${base}certifikace">Certifikace</a></li>
+          <li><a href="${base}realizace">Realizace</a></li>
+          <li><a href="${base}o-firme">O firmě</a></li>
+          <li><a href="${base}kontakt">Kontakt</a></li>
+          <li><a href="${base}gdpr">GDPR</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -281,7 +281,7 @@ function contactForm(base, withSubject) {
       </select>
     </div>` : `<div class="field"><label for="predmet">Předmět</label><input id="predmet" name="predmet" type="text" placeholder="Čeho se poptávka týká?"></div>`;
   return `
-  <form class="form" data-typ="kontakt" data-thanks="${base}dekujeme.html" novalidate>
+  <form class="form" data-typ="kontakt" data-thanks="${base}dekujeme" novalidate>
     <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="form-row">
       <div class="field"><label for="jmeno">Jméno a příjmení <span class="req">*</span></label><input id="jmeno" name="jmeno" type="text" autocomplete="name" required></div>
@@ -292,7 +292,7 @@ function contactForm(base, withSubject) {
       ${subj}
     </div>
     <div class="field"><label for="zprava">Vaše zpráva</label><textarea id="zprava" name="zprava" placeholder="Napište nám, co potřebujete…"></textarea></div>
-    <label class="consent"><input type="checkbox" required> Odesláním formuláře souhlasím se <a href="${base}gdpr.html">zpracováním osobních údajů</a>.</label>
+    <label class="consent"><input type="checkbox" required> Odesláním formuláře souhlasím se <a href="${base}gdpr">zpracováním osobních údajů</a>.</label>
     <button type="submit" class="btn btn-gold">Odeslat poptávku ${I.arrow}</button>
     <p class="form-success" hidden>Otevíráme váš e-mailový klient s předvyplněnou zprávou. Děkujeme!</p>
     <p class="form-note">Nejpozději do 2 pracovních dní se vám ozveme.</p>
@@ -317,7 +317,7 @@ function goldBand(base, heading, text) {
         <div class="quote-card">
           <h3>Rychlá poptávka</h3>
           <p>Nechte nám kontakt, ozveme se do 2 pracovních dní.</p>
-          <form class="form" data-typ="rychla-poptavka" data-thanks="${base}dekujeme.html" novalidate>
+          <form class="form" data-typ="rychla-poptavka" data-thanks="${base}dekujeme" novalidate>
             <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
             <input type="hidden" name="predmet" value="Rychlá poptávka">
             <div class="field"><label for="qjmeno">Jméno <span class="req">*</span></label><input id="qjmeno" name="jmeno" type="text" autocomplete="name" required></div>
@@ -342,7 +342,7 @@ function ctaBand(base, heading, text) {
       <h2>${heading}</h2>
       <p>${text}</p>
       <div class="cta-actions">
-        <a class="btn btn-gold" href="${base}kontakt.html#poptavka">Nezávazně poptat ${I.arrow}</a>
+        <a class="btn btn-gold" href="${base}kontakt#poptavka">Nezávazně poptat ${I.arrow}</a>
         <a class="btn btn-ghost" href="tel:${TEL_HREF}">${I.phone} ${TEL}</a>
       </div>
     </div>
@@ -396,7 +396,7 @@ function pageHero(base, crumbs, title, lead) {
 function servicePage(cfg) {
   const base = "../";
   const body =
-    pageHero(base, [{label:"Domů", href:base+"index.html"},{label:cfg.crumb}], cfg.title, cfg.lead) +
+    pageHero(base, [{label:"Domů", href: base || "./"},{label:cfg.crumb}], cfg.title, cfg.lead) +
     `
 <section class="section section--tight">
   <div class="container">
@@ -500,7 +500,7 @@ pages.push({
     </div>
     <div class="cards">
       ${SERVICES.map((s, i) => `
-      <a class="card" href="sluzby/${s.slug}.html" data-reveal="${(i%3)*80}">
+      <a class="card" href="sluzby/${s.slug}" data-reveal="${(i%3)*80}">
         <div class="ic-gold">${I[s.icon]}</div>
         <h3>${s.title}</h3>
         <p>${s.desc}</p>
@@ -525,7 +525,7 @@ ${partnersStrip()}
         <p>Duo alarm založili bratři Jan a Ondřej Linkovi. Jan se dlouhodobě věnuje elektroinstalacím a zabezpečovacím systémům, Ondřej přináší zkušenosti z oblasti marketingu a komunikace se zákazníky.</p>
         <p>Přestože se jedná o mladou firmu, stojí za ní roky praxe a zkušeností získaných při realizaci projektů pro domácnosti i firmy. Každá zakázka je příležitostí ukázat, že poctivě odvedená práce, spolehlivost a osobní přístup mají stále své místo.</p>
         <p>Působíme v Královéhradeckém a Libereckém kraji a zákazníkům nabízíme individuální řešení od prvního návrhu až po finální realizaci. Za každým projektem stojí konkrétní lidé, kteří nesou odpovědnost za výsledek a kvalitu odvedené práce.</p>
-        <a class="arrow-link" href="o-firme.html" style="margin-top:1.8rem">Zjistit více o firmě ${I.arrow}</a>
+        <a class="arrow-link" href="o-firme" style="margin-top:1.8rem">Zjistit více o firmě ${I.arrow}</a>
       </div>
     </div>
   </div>
@@ -706,7 +706,7 @@ pages.push({
     { l: "Zabezpečení", icon: "shield", h: "Komplexní ochrana", img: "cd-cctv.jpg", p: "Ajax chrání váš domov před vloupáním, požárem, únikem plynu i vytopením. Detektory úniku vody LeaksProtect ve spojení s ventilem WaterStop zastaví přívod vody do 7 sekund od detekce. Systém funguje i při výpadku proudu díky záložní baterii a při výpadku internetu přes záložní GSM." },
   ];
   const body =
-    pageHero(base, [{label:"Domů", href:base+"index.html"},{label:"Chytrá domácnost"}], "Chytrá domácnost",
+    pageHero(base, [{label:"Domů", href: base || "./"},{label:"Chytrá domácnost"}], "Chytrá domácnost",
       "Jako certifikovaný Ajax partner navrhujeme a realizujeme kompletní řešení chytré domácnosti od projektu po spuštění. Spojte komfort, úsporu a bezpečí do jednoho systému.") +
     `
 <section class="section section--tight">
@@ -808,7 +808,7 @@ pages.push({
         <h3>Nevíte, jak velký disk potřebujete?</h3>
         <p>Spočítejte si orientačně, kolik úložiště váš kamerový systém spotřebuje a na jak dlouho vám vyjde archivace.</p>
       </div>
-      <a class="btn btn-gold" href="../kalkulacka.html">Kalkulačka úložiště ${I.arrow}</a>
+      <a class="btn btn-gold" href="../kalkulacka">Kalkulačka úložiště ${I.arrow}</a>
     </div>
   </div>
 </section>`,
@@ -862,7 +862,7 @@ pages.push({
   out: "realizace.html",
   html: page("", "Realizace | Duo alarm",
     "Vybrané realizace Duo alarm, zabezpečení Ajax, elektroinstalace, kamerové systémy a zvonková tabla v Královéhradeckém a Libereckém kraji.",
-    pageHero("", [{label:"Domů", href:"index.html"},{label:"Realizace"}], "Naše realizace",
+    pageHero("", [{label:"Domů", href:"./"},{label:"Realizace"}], "Naše realizace",
       "Podívejte se na vybrané projekty. Podobně to může vypadat i u vás. U každé realizace najdete fotografie a popis provedených prací.") +
 `<section class="section section--tight">
   <div class="container">
@@ -875,7 +875,7 @@ pages.push({
           <h3>${p.title}</h3>
           <span class="proj-loc">${I.pin} ${p.loc}</span>
         </div>
-        <a class="proj-link" href="realizace/${p.slug}.html" aria-label="${p.title}, zobrazit realizaci"></a>
+        <a class="proj-link" href="realizace/${p.slug}" aria-label="${p.title}, zobrazit realizaci"></a>
       </article>`).join("")}
     </div>
   </div>
@@ -889,7 +889,7 @@ PROJECTS.forEach((p, idx) => {
   const base = "../";
   const others = PROJECTS.filter((_, i) => i !== idx).slice(0, 3);
   const body =
-    pageHero(base, [{label:"Domů", href:base+"index.html"},{label:"Realizace", href:base+"realizace.html"},{label:p.title}], p.title, p.lead)
+    pageHero(base, [{label:"Domů", href: base || "./"},{label:"Realizace", href:base+"realizace"},{label:p.title}], p.title, p.lead)
     .replace('</section>', `
     <div class="container">
       <div class="detail-meta" data-reveal="160">
@@ -917,7 +917,7 @@ PROJECTS.forEach((p, idx) => {
         <a href="tel:${TEL_HREF}">${TEL}</a>
         <a href="mailto:${EMAIL}">${EMAIL}</a>
       </div>
-      <a class="btn btn-gold" href="${base}kontakt.html#poptavka">Nezávazná poptávka ${I.arrow}</a>
+      <a class="btn btn-gold" href="${base}kontakt#poptavka">Nezávazná poptávka ${I.arrow}</a>
     </div>
   </div>
 </section>
@@ -934,7 +934,7 @@ PROJECTS.forEach((p, idx) => {
           <h3>${o.title}</h3>
           <span class="proj-loc">${I.pin} ${o.loc}</span>
         </div>
-        <a class="proj-link" href="${base}realizace/${o.slug}.html" aria-label="${o.title}"></a>
+        <a class="proj-link" href="${base}realizace/${o.slug}" aria-label="${o.title}"></a>
       </article>`).join("")}
     </div>
   </div>
@@ -947,7 +947,7 @@ pages.push({
   out: "o-firme.html",
   html: page("", "O firmě | Duo alarm",
     "Duo alarm, s.r.o., poctivé řemeslo, přes 13 let zkušeností, záruka 3 roky. Elektroinstalace a zabezpečení v Hradci Králové, Jičíně, Liberci a okolí.",
-    pageHero("", [{label:"Domů", href:"index.html"},{label:"O firmě"}], "Za každou zakázkou stojí konkrétní člověk",
+    pageHero("", [{label:"Domů", href:"./"},{label:"O firmě"}], "Za každou zakázkou stojí konkrétní člověk",
       "Duo alarm vznikl z vášně pro řemeslo a přesvědčení, že elektroinstalace a zabezpečení mají být provedeny poctivě, na míru a bez zbytečných komplikací.") +
 `<section class="section section--tight">
   <div class="container">
@@ -973,7 +973,7 @@ pages.push({
         <span class="eyebrow">Kde působíme</span>
         <h2>Jsme ve dvou krajích</h2>
         <p>Působíme v <strong>Královéhradeckém a Libereckém kraji</strong>. Dopravu počítáme z Hradce a vždy ji předem transparentně naceníme.</p>
-        <a class="btn btn-gold" href="kontakt.html#poptavka" style="margin-top:1.6rem">Ozvěte se nám ${I.arrow}</a>
+        <a class="btn btn-gold" href="kontakt#poptavka" style="margin-top:1.6rem">Ozvěte se nám ${I.arrow}</a>
       </div>
       <div class="aside-card map-card" data-reveal="100">${CZ_MAP}</div>
     </div>
@@ -1006,7 +1006,7 @@ pages.push({
   out: "certifikace.html",
   html: page("", "Certifikace | Duo alarm",
     "Pracujeme s platnou certifikací dle NV 194/2022 Sb. a jsme certifikovaným partnerem Ajax Systems, Jablotron 100+ a Mercury.",
-    pageHero("", [{label:"Domů", href:"index.html"},{label:"Certifikace"}], "Naše certifikace",
+    pageHero("", [{label:"Domů", href:"./"},{label:"Certifikace"}], "Naše certifikace",
       "Pracujeme s platnou certifikací a jsme certifikovaným partnerem předních výrobců zabezpečovací techniky. Kvalitu a odbornost máme podloženou doklady.") +
 `<section class="section section--tight">
   <div class="container">
@@ -1031,7 +1031,7 @@ pages.push({
   out: "kontakt.html",
   html: page("", "Kontakt | Duo alarm",
     "Kontaktujte Duo alarm, s.r.o., telefon +420 775 687 877, info@duoalarm.cz. Komenského 264/5, Hradec Králové. Ozveme se do 2 pracovních dní.",
-    pageHero("", [{label:"Domů", href:"index.html"},{label:"Kontakt"}], "Kontaktujte nás",
+    pageHero("", [{label:"Domů", href:"./"},{label:"Kontakt"}], "Kontaktujte nás",
       "Máte dotaz nebo zájem o naše služby? Napište nám nebo zavolejte. Rádi vám pomůžeme a ozveme se nejpozději do dvou pracovních dní.") +
 `<section class="section section--tight">
   <div class="container">
@@ -1066,7 +1066,7 @@ pages.push({
   out: "gdpr.html",
   html: page("", "Ochrana osobních údajů (GDPR) | Duo alarm",
     "Zásady zpracování a ochrany osobních údajů společnosti Duo alarm, s.r.o. v souladu s nařízením GDPR.",
-    pageHero("", [{label:"Domů", href:"index.html"},{label:"GDPR"}], "Ochrana osobních údajů",
+    pageHero("", [{label:"Domů", href:"./"},{label:"GDPR"}], "Ochrana osobních údajů",
       "Zásady zpracování osobních údajů společnosti Duo alarm, s.r.o. v souladu s nařízením (EU) 2016/679 (GDPR).") +
 `<section class="section section--tight">
   <div class="container">
@@ -1143,8 +1143,8 @@ pages.push({
       <h1>Děkujeme za vaši poptávku</h1>
       <p>Vaši zprávu jsme přijali. Ozveme se vám nejpozději do <strong>2 pracovních dní</strong> a domluvíme další postup. Mezitím se můžete podívat na naše realizace nebo nám rovnou zavolat.</p>
       <div class="notice-actions">
-        <a class="btn btn-gold" href="index.html">Zpět na úvod ${I.arrow}</a>
-        <a class="btn btn-ghost" href="realizace.html">Naše realizace</a>
+        <a class="btn btn-gold" href="./">Zpět na úvod ${I.arrow}</a>
+        <a class="btn btn-ghost" href="realizace">Naše realizace</a>
         <a class="btn btn-ghost" href="tel:${TEL_HREF}">${I.phone} ${TEL}</a>
       </div>
     </div>
@@ -1170,8 +1170,8 @@ pages.push({
       <h1>Tma tmoucí. Tady nic není.</h1>
       <p>Tato stránka zhasla a světlo sem nedovedeme. Zato u vás doma nebo ve firmě to zvládneme levou zadní.</p>
       <div class="notice-actions">
-        <a class="btn btn-gold" href="index.html">Na hlavní stránku ${I.arrow}</a>
-        <a class="btn btn-ghost" href="kontakt.html">Kontakt</a>
+        <a class="btn btn-gold" href="./">Na hlavní stránku ${I.arrow}</a>
+        <a class="btn btn-ghost" href="kontakt">Kontakt</a>
       </div>
     </div>
   </div>
@@ -1183,7 +1183,7 @@ pages.push({
   out: "kalkulacka.html",
   html: page("", "Kalkulačka úložiště pro kamery | Duo alarm",
     "Spočítejte si orientačně, jak velký disk potřebujete pro svůj kamerový systém. Jednoduchá kalkulačka úložiště od Duo alarm.",
-    pageHero("", [{label:"Domů",href:"index.html"},{label:"Kamerové systémy",href:"sluzby/kamerove-systemy.html"},{label:"Kalkulačka úložiště"}],
+    pageHero("", [{label:"Domů",href:"./"},{label:"Kamerové systémy",href:"sluzby/kamerove-systemy"},{label:"Kalkulačka úložiště"}],
       "Kalkulačka úložiště pro kamery",
       "Nevíte, jaký disk do rekordéru zvolit nebo na jak dlouho vám vyjde archivace? Posuňte pár voleb a hned uvidíte, kolik místa budete potřebovat.") +
 `<section class="section section--tight">
@@ -1280,7 +1280,7 @@ pages.push({
           <li>Komprese H.265 (a H.265+) výrazně šetří místo.</li>
           <li>Nahrávání jen na pohyb sníží potřebu úložiště.</li>
         </ul>
-        <a class="btn btn-gold btn-block" href="sluzby/kamerove-systemy.html#poptavka">Nezávazně poptat kamerový systém ${I.arrow}</a>
+        <a class="btn btn-gold btn-block" href="sluzby/kamerove-systemy#poptavka">Nezávazně poptat kamerový systém ${I.arrow}</a>
         <p class="calc-note">Jde o orientační odhad. Skutečná potřeba se může lišit podle scény, nastavení rekordéru a typu komprese. Rádi vám pomůžeme s přesným výběrem.</p>
       </aside>
     </div>
@@ -1355,7 +1355,7 @@ pages.push({
 
 /* ---------------- Write ---------------- */
 pages.forEach(p => {
-  const urlPath = p.out === "index.html" ? "" : p.out.replace(/\\/g, "/");
+  const urlPath = p.out === "index.html" ? "" : p.out.replace(/\\/g, "/").replace(/\.html$/, "");
   const canonical = `${SITE_URL}/${urlPath}`;
   const html = p.html.split("__CANONICAL__").join(canonical);
   const dest = path.join(ROOT, p.out);
@@ -1369,7 +1369,7 @@ console.log("\nDone," + pages.length + " pages generated.");
 const SITEMAP_EXCLUDE = new Set(["dekujeme.html", "404.html", "gdpr.html"]);
 const sitemapUrls = pages
   .filter(p => !SITEMAP_EXCLUDE.has(p.out))
-  .map(p => p.out === "index.html" ? `${SITE_URL}/` : `${SITE_URL}/${p.out.replace(/\\/g, "/")}`);
+  .map(p => p.out === "index.html" ? `${SITE_URL}/` : `${SITE_URL}/${p.out.replace(/\\/g, "/").replace(/\.html$/, "")}`);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemapUrls.map(u => `  <url><loc>${u}</loc></url>`).join("\n")}
@@ -1381,6 +1381,7 @@ console.log("✓ sitemap.xml");
 const robots = `User-agent: *
 Allow: /
 Disallow: /dekujeme.html
+Disallow: /dekujeme
 Disallow: /404.html
 
 Sitemap: ${SITE_URL}/sitemap.xml

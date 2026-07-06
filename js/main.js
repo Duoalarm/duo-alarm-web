@@ -92,7 +92,7 @@
   }
 
   /* ---- Active nav link ---- */
-  var path = location.pathname.split("/").pop() || "index.html";
+  var path = location.pathname.split("/").pop() || "";
   document.querySelectorAll("[data-nav]").forEach(function (a) {
     if (a.getAttribute("data-nav") === path) a.classList.add("active");
   });
@@ -196,7 +196,7 @@
       var btn = form.querySelector("button[type=submit]");
       if (btn) { btn.disabled = true; btn.textContent = "Odesílám…"; }
 
-      var thanks = form.getAttribute("data-thanks") || "dekujeme.html";
+      var thanks = form.getAttribute("data-thanks") || "dekujeme";
       var posts = WEBHOOKS.map(function (url) {
         return fetch(url, { method: "POST", mode: "no-cors", body: data });
       });

@@ -7,8 +7,24 @@ http.createServer((req, res) => {
   let f = path.join(__dirname, u);
   if (!f.startsWith(__dirname)) { res.writeHead(403); return res.end("403"); }
   fs.readFile(f, (e, d) => {
-    if (e) { res.writeHead(404); return res.end("404 — " + u); }
+    if (e) {
+      // Mimic GitHub Pages: /foo serves foo.html if present
+      if (!path.extname(f)) {
+        return fs.readFile(f + ".html", (e2, d2) => {
+          if (e2) return serve404();
+          res.writeHead(200, { "Content-Type": types[".html"] });
+          res.end(d2);
+        });
+      }
+      return serve404();
+    }
     res.writeHead(200, { "Content-Type": types[path.extname(f)] || "application/octet-stream" });
     res.end(d);
   });
+  function serve404() {
+    fs.readFile(path.join(__dirname, "404.html"), (e, d) => {
+      res.writeHead(404, { "Content-Type": types[".html"] });
+      res.end(e ? "404 — " + u : d);
+    });
+  }
 }).listen(PORT, () => console.log("Duo alarm site on http://localhost:" + PORT));

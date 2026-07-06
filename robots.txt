@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /dekujeme.html
+Disallow: /dekujeme
 Disallow: /404.html
 
 Sitemap: https://www.duoalarm.cz/sitemap.xml
