@@ -145,15 +145,20 @@ function head(base, title, desc, opts) {
 <link rel="icon" type="image/png" href="${base}assets/img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="${base}css/styles.css">
 ${opts.noSchema ? "" : LOCAL_BUSINESS_SCHEMA}
 <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-M8NTHCPJ');</script>
+<script>window.dataLayer=window.dataLayer||[];window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});</script>
+<script>
+window.addEventListener('load', function(){
+  var f=document.getElementsByTagName('script')[0],j=document.createElement('script');
+  j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id=GTM-M8NTHCPJ';
+  f.parentNode.insertBefore(j,f);
+});
+</script>
 <!-- End Google Tag Manager -->
 </head>
 <body>
@@ -516,7 +521,7 @@ ${partnersStrip()}
   <div class="container">
     <div class="split sticky-split">
       <div class="split-media sticky-col" data-reveal>
-        <img src="assets/img/o-nas-car.webp" alt="Vůz a technika Duo alarm" loading="lazy">
+        <img src="assets/img/o-nas-car.webp" alt="Vůz a technika Duo alarm" width="1200" height="901" loading="lazy">
         <span class="scan"></span>
       </div>
       <div class="split-body" data-reveal="100">
@@ -953,7 +958,7 @@ pages.push({
   <div class="container">
     <div class="split">
       <div class="split-media" data-reveal>
-        <img src="assets/img/o-nas-car.webp" alt="Technika a vůz Duo alarm" loading="lazy">
+        <img src="assets/img/o-nas-car.webp" alt="Technika a vůz Duo alarm" width="1200" height="901" loading="lazy">
         <span class="scan"></span>
       </div>
       <div class="split-body" data-reveal="100">

@@ -18,15 +18,20 @@
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="css/styles.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["LocalBusiness","Electrician"],"name":"Duo alarm, s.r.o.","image":"https://www.duoalarm.cz/assets/img/cctv.webp","url":"https://www.duoalarm.cz","telephone":"+420775687877","email":"info@duoalarm.cz","taxID":"23029595","address":{"@type":"PostalAddress","streetAddress":"Komenského 264/5","addressLocality":"Hradec Králové","postalCode":"500 03","addressCountry":"CZ"},"geo":{"@type":"GeoCoordinates","latitude":50.2081887,"longitude":15.8332183},"areaServed":[{"@type":"AdministrativeArea","name":"Královéhradecký kraj"},{"@type":"AdministrativeArea","name":"Liberecký kraj"}],"sameAs":["https://www.google.com/maps/place/Duo+alarm/@50.2082022,15.8332223,17z/data=!4m8!3m7!1s0x25e977f666aba317:0x39664694ce8ca6c5!8m2!3d50.2082022!4d15.8332223!9m1!1b1!16s%2Fg%2F11x73b4qpd?entry=ttu"]}</script>
 <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-M8NTHCPJ');</script>
+<script>window.dataLayer=window.dataLayer||[];window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});</script>
+<script>
+window.addEventListener('load', function(){
+  var f=document.getElementsByTagName('script')[0],j=document.createElement('script');
+  j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id=GTM-M8NTHCPJ';
+  f.parentNode.insertBefore(j,f);
+});
+</script>
 <!-- End Google Tag Manager -->
 </head>
 <body>
@@ -96,7 +101,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="container">
     <div class="split">
       <div class="split-media" data-reveal>
-        <img src="assets/img/o-nas-car.webp" alt="Technika a vůz Duo alarm" loading="lazy">
+        <img src="assets/img/o-nas-car.webp" alt="Technika a vůz Duo alarm" width="1200" height="901" loading="lazy">
         <span class="scan"></span>
       </div>
       <div class="split-body" data-reveal="100">
