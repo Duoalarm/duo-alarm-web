@@ -173,7 +173,8 @@ strong { color: var(--text); font-weight: 600; }
 .dropdown a .di svg { width: 18px; height: 18px; }
 
 .nav-actions { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
-.nav-phone { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-head); font-weight: 600; font-size: 0.93rem; color: var(--text); }
+.nav-phone { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-head); font-weight: 600; font-size: 0.93rem; color: var(--text); transition: color var(--t); }
+.nav-phone:hover { color: var(--gold); }
 .nav-phone svg { width: 17px; height: 17px; color: var(--gold); }
 
 .nav-toggle { display: none; width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--border); align-items: center; justify-content: center; }
@@ -625,4 +626,6 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
   .gallery button:first-child { grid-column: span 1; }
   .hero-badge { left: 0; }
   .owner-card { flex-direction: column; text-align: center; }
+  .band-gold { padding: 1.2rem; }
+  .quote-card { padding: 1rem; }
 }

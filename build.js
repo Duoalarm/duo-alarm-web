@@ -467,7 +467,7 @@ pages.push({
     <div class="hero-grid">
       <div class="hero-content">
         <span class="hero-tagline" data-reveal><span class="dot"></span>Duo alarm, s.r.o., Hradec Králové</span>
-        <h1 data-reveal="80">Elektroinstalace a zabezpečení <span class="gold">pro domy, byty i firmy</span></h1>
+        <h1 data-reveal="80">Elektroinstalace a zabezpečení <span class="gold">pro domácnosti i firmy</span></h1>
         <p class="lead" data-reveal="160">Profesionální elektroinstalace a spolehlivé zabezpečení, které vydrží roky bez starostí. Postaráme se o vše od návrhu přes nacenění až po finální realizaci a revizi.</p>
         <div class="hero-actions" data-reveal="240">
           <a class="btn btn-gold" href="#poptavka">Nezávazně poptat ${I.arrow}</a>
