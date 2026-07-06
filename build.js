@@ -1156,11 +1156,9 @@ pages.push({
       </svg>
       <span class="eyebrow">Odesláno</span>
       <h1>Děkujeme za vaši poptávku</h1>
-      <p>Vaši zprávu jsme přijali. Ozveme se vám nejpozději do <strong>2 pracovních dní</strong> a domluvíme další postup. Mezitím se můžete podívat na naše realizace nebo nám rovnou zavolat.</p>
+      <p>Vaši zprávu jsme přijali. Ozveme se vám nejpozději do <strong>2 pracovních dní</strong> a domluvíme další postup.</p>
       <div class="notice-actions">
         <a class="btn btn-gold" href="./">Zpět na úvod ${I.arrow}</a>
-        <a class="btn btn-ghost" href="realizace">Naše realizace</a>
-        <a class="btn btn-ghost" href="tel:${TEL_HREF}">${I.phone} ${TEL}</a>
       </div>
     </div>
   </div>
