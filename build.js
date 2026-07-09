@@ -180,7 +180,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 function header(base, hideCta) {
   const dd = SERVICES.map(s =>
-    `<a href="${base}sluzby/${s.slug}"><span class="di">${I[s.icon]}</span><span>${s.title}</span></a>`
+    `<a href="${base}${s.slug}"><span class="di">${I[s.icon]}</span><span>${s.title}</span></a>`
   ).join("\n");
   return `
 <header class="header">
@@ -209,7 +209,7 @@ function header(base, hideCta) {
 </header>
 <div class="mobile-menu" aria-label="Mobilní menu">
   <div class="mm-group">Služby</div>
-  ${SERVICES.map(s => `<a class="mm-sub" href="${base}sluzby/${s.slug}">${s.title}</a>`).join("\n  ")}
+  ${SERVICES.map(s => `<a class="mm-sub" href="${base}${s.slug}">${s.title}</a>`).join("\n  ")}
   <div class="mm-group">Firma</div>
   <a href="${base}realizace">Realizace</a>
   <a href="${base}o-firme">O firmě</a>
@@ -246,7 +246,7 @@ function footer(base) {
       </div>
       <div class="footer-col">
         <h4>Naše služby</h4>
-        <ul>${SERVICES.slice(0,5).map(s => `<li><a href="${base}sluzby/${s.slug}">${s.title}</a></li>`).join("")}</ul>
+        <ul>${SERVICES.slice(0,5).map(s => `<li><a href="${base}${s.slug}">${s.title}</a></li>`).join("")}</ul>
       </div>
       <div class="footer-col">
         <h4>Pro zákazníky</h4>
@@ -409,7 +409,7 @@ function pageHero(base, crumbs, title, lead) {
 
 /* Generic service page */
 function servicePage(cfg) {
-  const base = "../";
+  const base = "";
   const body =
     pageHero(base, [{label:"Domů", href: base || "./"},{label:cfg.crumb}], cfg.title, cfg.lead) +
     `
@@ -515,7 +515,7 @@ pages.push({
     </div>
     <div class="cards">
       ${SERVICES.map((s, i) => `
-      <a class="card" href="sluzby/${s.slug}" data-reveal="${(i%3)*80}">
+      <a class="card" href="${s.slug}" data-reveal="${(i%3)*80}">
         <div class="ic-gold">${I[s.icon]}</div>
         <h3>${s.title}</h3>
         <p>${s.desc}</p>
@@ -618,7 +618,7 @@ goldBand("", "Máte záměr? Postaráme se o zbytek.", "Návrh, nacenění, real
 
 /* ---------- SERVICE: Elektroinstalace ---------- */
 pages.push({
-  out: "sluzby/elektroinstalace.html",
+  out: "elektroinstalace.html",
   html: servicePage({
     crumb: "Elektroinstalace", title: "Kompletní elektroinstalace",
     lead: "Od prvního návrhu a přípravy rozvodů až po revizi, dokumentaci a předání hotového díla.",
@@ -642,7 +642,7 @@ pages.push({
 
 /* ---------- SERVICE: Jablotron ---------- */
 pages.push({
-  out: "sluzby/zabezpeceni-jablotron.html",
+  out: "zabezpeceni-jablotron.html",
   html: servicePage({
     crumb: "Zabezpečení Jablotron", title: "Zabezpečení Jablotron",
     lead: "Certifikovaná elektronická zabezpečovací signalizace (EZS) od české značky Jablotron pro každý objekt.",
@@ -673,7 +673,7 @@ pages.push({
 
 /* ---------- SERVICE: Ajax ---------- */
 pages.push({
-  out: "sluzby/zabezpeceni-ajax.html",
+  out: "zabezpeceni-ajax.html",
   html: servicePage({
     crumb: "Zabezpečení Ajax", title: "Zabezpečení Ajax",
     lead: "Ajax je moderní zabezpečovací systém dostupný v drátovém i bezdrátovém provedení s nadčasovým designem. Je vhodný pro objekty libovolné velikosti.",
@@ -706,7 +706,7 @@ pages.push({
 
 /* ---------- SERVICE: Chytrá domácnost (custom with tabs) ---------- */
 (function () {
-  const base = "../";
+  const base = "";
   const propTypes = [
     { l: "Novostavba", n: "U novostaveb navrhneme chytrou domácnost už ve fázi projektu, kabeláž i prvky Ajax připravíme tak, aby vše bylo skryté, čisté a připravené na budoucí rozšíření." },
     { l: "Rekonstrukce", n: "Při rekonstrukci využijeme nové rozvody k zabudování chytrých prvků. Sladíme zabezpečení, osvětlení i stínění do jednoho systému bez kompromisů." },
@@ -799,13 +799,13 @@ pages.push({
 </section>
 ` +
     goldBand(base, "Získejte návrh chytré domácnosti", "Každý dům je originál a chytré řešení přizpůsobíme vašim potřebám. Nechte nám kontakt a připravíme cenovou nabídku zdarma.");
-  pages.push({ out: "sluzby/chytra-domacnost.html", html: page(base, "Chytrá domácnost | Duo alarm",
+  pages.push({ out: "chytra-domacnost.html", html: page(base, "Chytrá domácnost | Duo alarm",
     "Certifikovaný Ajax partner, chytrá domácnost na míru: zabezpečení, osvětlení, stínění, přístup a řízení spotřeby v jednom systému.", body, { ogImage: "cd-house.avif" }) });
 })();
 
 /* ---------- SERVICE: Kamerové systémy ---------- */
 pages.push({
-  out: "sluzby/kamerove-systemy.html",
+  out: "kamerove-systemy.html",
   html: servicePage({
     crumb: "Kamerové systémy", title: "Kamerové systémy",
     lead: "Instalujeme IP kamerové systémy od značek Ajax, Dahua a Hikvision.",
@@ -847,7 +847,7 @@ pages.push({
 
 /* ---------- SERVICE: Další služby ---------- */
 pages.push({
-  out: "sluzby/dalsi-sluzby.html",
+  out: "dalsi-sluzby.html",
   html: servicePage({
     crumb: "Další služby", title: "Další služby, které u nás najdete",
     lead: "Specializujeme se na komplexní slaboproudé elektromontáže, instalace nabíječek pro elektromobily a zvonková tabla.",
@@ -1196,7 +1196,7 @@ pages.push({
   out: "kalkulacka.html",
   html: page("", "Kalkulačka úložiště pro kamery | Duo alarm",
     "Spočítejte si orientačně, jak velký disk potřebujete pro svůj kamerový systém. Jednoduchá kalkulačka úložiště od Duo alarm.",
-    pageHero("", [{label:"Domů",href:"./"},{label:"Kamerové systémy",href:"sluzby/kamerove-systemy"},{label:"Kalkulačka úložiště"}],
+    pageHero("", [{label:"Domů",href:"./"},{label:"Kamerové systémy",href:"kamerove-systemy"},{label:"Kalkulačka úložiště"}],
       "Kalkulačka úložiště pro kamery",
       "Nevíte, jaký disk do rekordéru zvolit nebo na jak dlouho vám vyjde archivace? Posuňte pár voleb a hned uvidíte, kolik místa budete potřebovat.") +
 `<section class="section section--tight">
@@ -1293,7 +1293,7 @@ pages.push({
           <li>Komprese H.265 (a H.265+) výrazně šetří místo.</li>
           <li>Nahrávání jen na pohyb sníží potřebu úložiště.</li>
         </ul>
-        <a class="btn btn-gold btn-block" href="sluzby/kamerove-systemy#poptavka">Nezávazně poptat kamerový systém ${I.arrow}</a>
+        <a class="btn btn-gold btn-block" href="kamerove-systemy#poptavka">Nezávazně poptat kamerový systém ${I.arrow}</a>
         <p class="calc-note">Jde o orientační odhad. Skutečná potřeba se může lišit podle scény, nastavení rekordéru a typu komprese. Rádi vám pomůžeme s přesným výběrem.</p>
       </aside>
     </div>
@@ -1377,6 +1377,28 @@ pages.forEach(p => {
   console.log("✓ " + p.out);
 });
 console.log("\nDone," + pages.length + " pages generated.");
+
+/* ---------------- Redirect stubs: old /sluzby/<slug> -> new /<slug> ---------------- */
+SERVICES.forEach(s => {
+  const target = `${SITE_URL}/${s.slug}`;
+  const html = `<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>${s.title} | Duo alarm</title>
+<link rel="canonical" href="${target}">
+<meta http-equiv="refresh" content="0; url=${target}">
+</head>
+<body>
+<p>Tato stránka se přesunula na <a href="${target}">${target}</a>.</p>
+</body>
+</html>
+`;
+  const dest = path.join(ROOT, "sluzby", `${s.slug}.html`);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, html, "utf8");
+  console.log("↪ sluzby/" + s.slug + ".html -> " + target);
+});
 
 /* ---------------- SEO: sitemap.xml & robots.txt ---------------- */
 const SITEMAP_EXCLUDE = new Set(["dekujeme.html", "404.html", "gdpr.html"]);
