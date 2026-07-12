@@ -88,6 +88,23 @@ const SERVICES = [
   { slug: "dalsi-sluzby", title: "Další služby", icon: "plug", desc: "Slaboproudé elektromontáže, videotelefony a nabíječky pro elektromobily." },
 ];
 
+const FAQ = [
+  { q: "Jaká je cena elektroinstalace?", a: "Cena závisí na rozsahu prací, dispozici objektu a použitém materiálu. Po bezplatné prohlídce vám připravíme konkrétní kalkulaci. Základní rekonstrukce bytu se pohybuje v řádu desítek tisíc korun." },
+  { q: "Jaké funkce má chytrá domácnost?", a: "Chytrá domácnost umožňuje ovládat osvětlení, žaluzie, topení, zabezpečení i spotřebiče z jedné aplikace. Systém se přizpůsobuje vašim zvyklostem a šetří energii." },
+  { q: "Jak dlouho trvá realizace elektroinstalace?", a: "Rekonstrukce bytu trvá obvykle 10–15 pracovních dní, u novostaveb se doba odvíjí od velikosti objektu a připravenosti stavby. Termín vždy domluvíme předem a dodržíme ho." },
+  { q: "Zajišťujete také revizi a zaškolení?", a: "Ano. Součástí každé zakázky je revizní zpráva od certifikovaného revizního technika. U chytrých domácností a zabezpečovacích systémů vás na místě zaškolíme a předáme veškerou dokumentaci." },
+  { q: "Získám předem jasný návrh a cenovou kalkulaci?", a: "Samozřejmě. Před zahájením prací vždy zpracujeme cenovou nabídku s rozpisem prací a materiálu. Bez vašeho souhlasu nezačínáme." },
+];
+const FAQ_SCHEMA = `<script type="application/ld+json">${JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": FAQ.map(f => ({
+    "@type": "Question",
+    "name": f.q,
+    "acceptedAnswer": { "@type": "Answer", "text": f.a },
+  })),
+})}</script>`;
+
 const PARTNERS = ["Jablotron", "Ajax", "Dahua", "Hikvision", "Hanwha", "Mercury"];
 
 /* Logo as inline SVG (crisp hover-zoom; an <img> of an SVG would rasterize/blur) */
@@ -596,13 +613,7 @@ ${partnersStrip()}
         <a class="btn btn-gold" href="#poptavka" style="margin-top:1.8rem">Mám další dotaz ${I.arrow}</a>
       </div>
       <div class="faq" data-reveal="100">
-        ${[
-          { q: "Jaká je cena elektroinstalace?", a: "Cena závisí na rozsahu prací, dispozici objektu a použitém materiálu. Po bezplatné prohlídce vám připravíme konkrétní kalkulaci. Základní rekonstrukce bytu se pohybuje v řádu desítek tisíc korun." },
-          { q: "Jaké funkce má chytrá domácnost?", a: "Chytrá domácnost umožňuje ovládat osvětlení, žaluzie, topení, zabezpečení i spotřebiče z jedné aplikace. Systém se přizpůsobuje vašim zvyklostem a šetří energii." },
-          { q: "Jak dlouho trvá realizace elektroinstalace?", a: "Rekonstrukce bytu trvá obvykle 10–15 pracovních dní, u novostaveb se doba odvíjí od velikosti objektu a připravenosti stavby. Termín vždy domluvíme předem a dodržíme ho." },
-          { q: "Zajišťujete také revizi a zaškolení?", a: "Ano. Součástí každé zakázky je revizní zpráva od certifikovaného revizního technika. U chytrých domácností a zabezpečovacích systémů vás na místě zaškolíme a předáme veškerou dokumentaci." },
-          { q: "Získám předem jasný návrh a cenovou kalkulaci?", a: "Samozřejmě. Před zahájením prací vždy zpracujeme cenovou nabídku s rozpisem prací a materiálu. Bez vašeho souhlasu nezačínáme." },
-        ].map((f, i) => `
+        ${FAQ.map((f, i) => `
         <details${i === 0 ? " open" : ""}>
           <summary>${f.q}<span class="plus" aria-hidden="true"></span></summary>
           <div class="faq-body"><p>${f.a}</p></div>
@@ -611,6 +622,7 @@ ${partnersStrip()}
     </div>
   </div>
 </section>
+${FAQ_SCHEMA}
 ` +
 goldBand("", "Máte záměr? Postaráme se o zbytek.", "Návrh, nacenění, realizace. Napište nám nebo zavolejte a my se ozveme nejpozději do dvou pracovních dní.")
   , { hideCta: true, ogImage: "hero-jan.webp" })
