@@ -149,7 +149,7 @@ function head(base, title, desc, opts) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <meta name="description" content="${desc}">${opts.noindex ? '\n<meta name="robots" content="noindex, nofollow">' : ''}
-<meta name="theme-color" content="#202124">
+<meta name="theme-color" content="#0a0e14">
 <link rel="canonical" href="__CANONICAL__">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${desc}">
