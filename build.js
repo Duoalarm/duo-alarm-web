@@ -149,7 +149,7 @@ function head(base, title, desc, opts) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <meta name="description" content="${desc}">${opts.noindex ? '\n<meta name="robots" content="noindex, nofollow">' : ''}
-<meta name="theme-color" content="#0a0e14">
+<meta name="theme-color" content="#202124">
 <link rel="canonical" href="__CANONICAL__">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${desc}">
@@ -410,6 +410,24 @@ function serviceFeatures(items, asSteps) {
 </section>`;
 }
 
+function breadcrumbSchema(base, crumbs) {
+  const depth = (base.match(/\.\.\//g) || []).length;
+  const resolve = (href) => {
+    let h = href;
+    for (let i = 0; i < depth; i++) h = h.replace(/^\.\.\//, "");
+    return h === "./" || h === "" ? `${SITE_URL}/` : `${SITE_URL}/${h}`;
+  };
+  return `<script type="application/ld+json">${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": crumbs.map((c, i) => {
+      const item = { "@type": "ListItem", "position": i + 1, "name": c.label };
+      if (c.href) item.item = resolve(c.href);
+      return item;
+    }),
+  })}</script>`;
+}
+
 function pageHero(base, crumbs, title, lead) {
   const cr = crumbs.map((c, i) => i < crumbs.length - 1
     ? `<a href="${c.href}">${c.label}</a> ${I.chevronR} `
@@ -421,7 +439,24 @@ function pageHero(base, crumbs, title, lead) {
     <h1 data-reveal="60">${title}</h1>
     <p class="lead" data-reveal="120">${lead}</p>
   </div>
-</section>`;
+</section>
+${breadcrumbSchema(base, crumbs)}`;
+}
+
+function serviceSchema(cfg) {
+  return `<script type="application/ld+json">${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": cfg.crumb,
+    "name": cfg.crumb,
+    "description": cfg.lead,
+    "provider": { "@type": ["LocalBusiness", "Electrician"], "name": "Duo alarm, s.r.o.", "url": SITE_URL, "telephone": TEL_HREF },
+    "areaServed": [
+      { "@type": "AdministrativeArea", "name": "Královéhradecký kraj" },
+      { "@type": "AdministrativeArea", "name": "Liberecký kraj" },
+    ],
+    "url": `${SITE_URL}/${cfg.slug}`,
+  })}</script>`;
 }
 
 /* Generic service page */
@@ -465,7 +500,8 @@ function servicePage(cfg) {
     </div>`).join("")}
   </div>
 </section>` : "") +
-    goldBand(base, cfg.ctaHeading, cfg.ctaText);
+    goldBand(base, cfg.ctaHeading, cfg.ctaText) +
+    (cfg.slug ? serviceSchema(cfg) : "");
   return page(base, `${cfg.title} | Duo alarm`, cfg.lead, body, { ogImage: cfg.image });
 }
 
@@ -632,6 +668,7 @@ goldBand("", "Máte záměr? Postaráme se o zbytek.", "Návrh, nacenění, real
 pages.push({
   out: "elektroinstalace.html",
   html: servicePage({
+    slug: "elektroinstalace",
     crumb: "Elektroinstalace", title: "Kompletní elektroinstalace",
     lead: "Od prvního návrhu a přípravy rozvodů až po revizi, dokumentaci a předání hotového díla.",
     image: "elektro-dojedu.webp", imageAlt: "Technik Duo alarm přijíždí na zakázku s nářadím",
@@ -656,6 +693,7 @@ pages.push({
 pages.push({
   out: "zabezpeceni-jablotron.html",
   html: servicePage({
+    slug: "zabezpeceni-jablotron",
     crumb: "Zabezpečení Jablotron", title: "Zabezpečení Jablotron",
     lead: "Certifikovaná elektronická zabezpečovací signalizace (EZS) od české značky Jablotron pro každý objekt.",
     image: "svc-jablotron.webp", imageAlt: "Ovládání zabezpečení Jablotron na nástěnné klávesnici",
@@ -687,6 +725,7 @@ pages.push({
 pages.push({
   out: "zabezpeceni-ajax.html",
   html: servicePage({
+    slug: "zabezpeceni-ajax",
     crumb: "Zabezpečení Ajax", title: "Zabezpečení Ajax",
     lead: "Ajax je moderní zabezpečovací systém dostupný v drátovém i bezdrátovém provedení s nadčasovým designem. Je vhodný pro objekty libovolné velikosti.",
     image: "svc-ajax.webp", imageAlt: "Bezdrátový detektor Ajax MotionCam v interiéru",
@@ -810,7 +849,8 @@ pages.push({
   </div>
 </section>
 ` +
-    goldBand(base, "Získejte návrh chytré domácnosti", "Každý dům je originál a chytré řešení přizpůsobíme vašim potřebám. Nechte nám kontakt a připravíme cenovou nabídku zdarma.");
+    goldBand(base, "Získejte návrh chytré domácnosti", "Každý dům je originál a chytré řešení přizpůsobíme vašim potřebám. Nechte nám kontakt a připravíme cenovou nabídku zdarma.") +
+    serviceSchema({ slug: "chytra-domacnost", crumb: "Chytrá domácnost", lead: "Certifikovaný Ajax partner, chytrá domácnost na míru: zabezpečení, osvětlení, stínění, přístup a řízení spotřeby v jednom systému." });
   pages.push({ out: "chytra-domacnost.html", html: page(base, "Chytrá domácnost | Duo alarm",
     "Certifikovaný Ajax partner, chytrá domácnost na míru: zabezpečení, osvětlení, stínění, přístup a řízení spotřeby v jednom systému.", body, { ogImage: "cd-house.avif" }) });
 })();
@@ -819,6 +859,7 @@ pages.push({
 pages.push({
   out: "kamerove-systemy.html",
   html: servicePage({
+    slug: "kamerove-systemy",
     crumb: "Kamerové systémy", title: "Kamerové systémy",
     lead: "Instalujeme IP kamerové systémy od značek Ajax, Dahua a Hikvision.",
     image: "cctv.webp", imageAlt: "Kamerový systém",
@@ -861,6 +902,7 @@ pages.push({
 pages.push({
   out: "dalsi-sluzby.html",
   html: servicePage({
+    slug: "dalsi-sluzby",
     crumb: "Další služby", title: "Další služby, které u nás najdete",
     lead: "Specializujeme se na komplexní slaboproudé elektromontáže, instalace nabíječek pro elektromobily a zvonková tabla.",
     image: "svc-slaboproud.webp", imageAlt: "Instalace zvonkového tabla Dahua",
