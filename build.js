@@ -512,7 +512,7 @@ const pages = [];
 pages.push({
   out: "index.html",
   html: page("", "Duo alarm | Elektroinstalace a zabezpečení Hradec Králové",
-    "Elektroinstalace, zabezpečení Jablotron a Ajax, kamerové systémy a chytrá domácnost. Hradec Králové, Jičín, Liberec a okolí. Přes 13 let zkušeností, záruka 3 roky.",
+    "Elektroinstalace, zabezpečení Jablotron a Ajax, kamerové systémy a chytrá domácnost v Hradci Králové a okolí. Přes 13 let zkušeností, záruka 3 roky.",
 `
 <section class="hero">
   <span class="hero-glow" aria-hidden="true"></span>
@@ -861,7 +861,7 @@ pages.push({
   html: servicePage({
     slug: "kamerove-systemy",
     crumb: "Kamerové systémy", title: "Kamerové systémy",
-    lead: "Instalujeme IP kamerové systémy od značek Ajax, Dahua a Hikvision.",
+    lead: "Instalujeme a servisujeme IP kamerové systémy Ajax, Dahua a Hikvision pro rodinné domy i firmy – sledujte svou nemovitost odkudkoli přes mobil.",
     image: "cctv.webp", imageAlt: "Kamerový systém",
     introHeading: "Nemovitost pod dohledem",
     introBody: [
@@ -1455,13 +1455,21 @@ SERVICES.forEach(s => {
 });
 
 /* ---------------- SEO: sitemap.xml & robots.txt ---------------- */
+const BUILD_DATE = new Date().toISOString().slice(0, 10);
 const SITEMAP_EXCLUDE = new Set(["dekujeme.html", "404.html", "gdpr.html"]);
-const sitemapUrls = pages
+const sitemapEntries = pages
   .filter(p => !SITEMAP_EXCLUDE.has(p.out))
-  .map(p => p.out === "index.html" ? `${SITE_URL}/` : `${SITE_URL}/${p.out.replace(/\\/g, "/").replace(/\.html$/, "")}`);
+  .map(p => {
+    const loc = p.out === "index.html" ? `${SITE_URL}/` : `${SITE_URL}/${p.out.replace(/\\/g, "/").replace(/\.html$/, "")}`;
+    const project = PROJECTS.find(pr => p.out === `realizace/${pr.slug}.html`);
+    const images = project
+      ? project.gallery.map(g => `\n    <image:image><image:loc>${SITE_URL}/assets/img/${g}</image:loc></image:image>`).join("")
+      : "";
+    return `  <url><loc>${loc}</loc><lastmod>${BUILD_DATE}</lastmod>${images}</url>`;
+  });
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapUrls.map(u => `  <url><loc>${u}</loc></url>`).join("\n")}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${sitemapEntries.join("\n")}
 </urlset>
 `;
 fs.writeFileSync(path.join(ROOT, "sitemap.xml"), sitemap, "utf8");
