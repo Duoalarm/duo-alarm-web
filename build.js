@@ -1503,6 +1503,9 @@ pages.push({
   const PROGRAMOVANI_FIXNI = 1080; // 1 hodina programování, fixně za celý projekt
   const ANGLE_LENS_TIER = { wide: "wide", medium: "medium", narrow: "motorzoom", motorzoom: "motorzoom" };
   const DAHUA_PTZ_PRICE = 2938; // nejlevnější reálná Dahua mini-PTZ (SD2A500NB-GNY-A-PV-0400B)
+  // NVR se prodává bez disku — kapacitu je nutné dokoupit zvlášť. Ceny = nejlevnější reálné SKU (Seagate SkyHawk)
+  // pro danou kapacitu z aktuálního ceníku materiálu; nad 12 TB se počítá s více kusy 12TB disku.
+  const HDD_PRICES = { 2: 2043, 4: 3135, 6: 4180, 8: 5890, 10: 7600, 12: 13395 };
 
   // Ajax: rozlišení i ohnisko jsou přímo v názvu produktu ("TurretCam (5 Mpx/2.8 mm)"), cena je stejná
   // pro obě pevná ohniska (2.8 i 4 mm), liší se jen podle rozlišení a varifokální (HLVF) řady.
@@ -1529,12 +1532,17 @@ pages.push({
       8: { wide: 3672, medium: 5585, motorzoom: 5585 },
     },
     dome: {
-      2: { wide: 1484, medium: 2597, motorzoom: 3521 },
-      4: { wide: 1729, medium: 3026, motorzoom: 4820 },
+      2: { wide: 1989, medium: 3169, motorzoom: 3521 },
+      4: { wide: 2525, medium: 4338, motorzoom: 4820 },
       5: { wide: 4927, medium: 4995, motorzoom: 4995 },
       8: { wide: 5707, medium: 5707, motorzoom: 5707 },
     },
   };
+  // Dome 2/4 Mpx má v ceníku i výrazně levnější SKU (IPC-HDBW1230DE-SW-0280B / ...1430DE-SW-0280B), ale ty jsou
+  // WiFi-only (žádné PoE) — ověřeno na produktové stránce dodavatele (12V DC + WiFi, bez PoE). Pro "Kabelem (PoE)"
+  // proto výše počítáme s dražším skutečně PoE SKU (IPC-HDBW224*/244*F-AS); tahle levnější cena platí jen při
+  // volbě WiFi přenosu u Dahua.
+  const DAHUA_WIFI_DOME_PRICES = { 2: 1484, 4: 1729 };
   const NVR_PRICES = {
     dahua: { 4: 2647, 8: 2770, 16: 4759, 32: 6977 },
     ajax: { 8: 4022, 16: 6196, 32: 12291 },
@@ -1727,8 +1735,10 @@ pages.push({
   var PROGRAMOVANI_FIXNI = ${JSON.stringify(PROGRAMOVANI_FIXNI)};
   var ANGLE_LENS_TIER = ${JSON.stringify(ANGLE_LENS_TIER)};
   var DAHUA_PTZ_PRICE = ${JSON.stringify(DAHUA_PTZ_PRICE)};
+  var HDD_PRICES = ${JSON.stringify(HDD_PRICES)};
   var AJAX_CAM_PRICES = ${JSON.stringify(AJAX_CAM_PRICES)};
   var DAHUA_CAM_PRICES = ${JSON.stringify(DAHUA_CAM_PRICES)};
+  var DAHUA_WIFI_DOME_PRICES = ${JSON.stringify(DAHUA_WIFI_DOME_PRICES)};
   var NVR_PRICES = ${JSON.stringify(NVR_PRICES)};
 
   var state = { step: 1, cameras: [], editIndex: -1, camIdSeq: 1, lastChangedId: -1, maxStep: 1 };
@@ -1834,6 +1844,9 @@ pages.push({
       var aTable = AJAX_CAM_PRICES[c.typ] && AJAX_CAM_PRICES[c.typ][mpx];
       if(aTable) return aTable[lensTier];
     }
+    if(c.znacka === "dahua" && c.typ === "dome" && c.prenos === "wifi" && lensTier === "wide" && DAHUA_WIFI_DOME_PRICES[c.rozliseni] != null){
+      return DAHUA_WIFI_DOME_PRICES[c.rozliseni];
+    }
     var dTable = DAHUA_CAM_PRICES[c.typ] && DAHUA_CAM_PRICES[c.typ][c.rozliseni];
     return dTable ? dTable[lensTier] : 0;
   }
@@ -1849,6 +1862,13 @@ pages.push({
     return (table && table[recorderChannels()]) || 0;
   }
   function recorderSellPrice(){ return recorderPurchasePrice() * MARZE; }
+  function hddPurchasePrice(tb){
+    var tiers = Object.keys(HDD_PRICES).map(Number).sort(function(a,b){ return a-b; });
+    for(var i=0;i<tiers.length;i++){ if(tiers[i] >= tb) return HDD_PRICES[tiers[i]]; }
+    var maxTier = tiers[tiers.length-1];
+    return Math.ceil(tb / maxTier) * HDD_PRICES[maxTier];
+  }
+  function hddSellPrice(){ return hddPurchasePrice(estimateHdd()) * MARZE; }
   function laborCost(){
     var n = totalCameraCount();
     if(n === 0) return 0;
@@ -1857,7 +1877,7 @@ pages.push({
   }
   function materialCost(){
     var camsTotal = state.cameras.reduce(function(sum,c){ return sum + cameraSellPrice(c) * c.pocet; }, 0);
-    var rekTotal = groupVal("rekTyp") === "nvr" ? recorderSellPrice() : 0;
+    var rekTotal = groupVal("rekTyp") === "nvr" ? recorderSellPrice() + hddSellPrice() : 0;
     return camsTotal + rekTotal;
   }
   function totalPrice(){
