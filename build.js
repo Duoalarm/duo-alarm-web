@@ -1439,7 +1439,6 @@ pages.push({
     dome: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a8 4 0 0 1 16 0"/><path d="M4 14h16"/><path d="M12 14v3"/><circle cx="12" cy="11.6" r="1.5"/></svg>',
     turret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 4 0 0 1 16 0"/><circle cx="14" cy="12" r="4"/><circle cx="14" cy="12" r="1.2"/></svg>',
     ptz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/><path d="M3 12a9 9 0 0 1 3-6.7"/><path d="M3 12a9 9 0 0 0 3 6.7"/><path d="M4.6 4.3l1.4 1-.3-1.7"/></svg>',
-    hidden: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="12" r="7" stroke-dasharray="2 3"/></svg>',
     wide: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18L3 4"/><path d="M12 18L21 4"/><path d="M5.2 7.4A10 10 0 0 1 18.8 7.4"/><rect x="8.4" y="18" width="7.2" height="5" rx="1.4"/><circle cx="12" cy="20.4" r="1.1" fill="currentColor" stroke="none"/></svg>',
     medium: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18L6 3"/><path d="M12 18L18 3"/><path d="M7.6 8.4A8 8 0 0 1 16.4 8.4"/><rect x="8.4" y="18" width="7.2" height="5" rx="1.4"/><circle cx="12" cy="20.4" r="1.1" fill="currentColor" stroke="none"/></svg>',
     narrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18L9 2"/><path d="M12 18L15 2"/><path d="M9.8 9A5 5 0 0 1 14.2 9"/><rect x="8.4" y="18" width="7.2" height="5" rx="1.4"/><circle cx="12" cy="20.4" r="1.1" fill="currentColor" stroke="none"/></svg>',
@@ -1465,7 +1464,6 @@ pages.push({
     { key: "dome", label: "Dome (kopulová)", desc: "Diskrétní kamera pod krytem, těžko se pozná, kam přesně míří. Odolná proti poškození, vhodná do obchodů, chodeb i garáží.", badges: ["interiér i exteriér", "diskrétní"], icon: CI.dome, photo: "cam-dome.jpg" },
     { key: "turret", label: "Turret (eyeball)", desc: "Kompaktní kamera v „očku“ s velmi dobrým nočním viděním bez odlesků. Univerzální volba pro dům i firmu.", badges: ["interiér i exteriér", "univerzální"], icon: CI.turret, photo: "cam-turret.jpg" },
     { key: "ptz", label: "PTZ (otočná)", desc: "Motoricky se otáčí a přibližuje. Pro velké plochy jako parkoviště, dvory nebo sklady, kde jedna kamera pokryje víc.", badges: ["velké plochy", "ovladatelná"], icon: CI.ptz, photo: "cam-ptz.jpg" },
-    { key: "hidden", label: "Skrytá / mini", desc: "Nenápadná kamera pro diskrétní monitoring tam, kde nemá být vidět. Vhodná do interiéru a citlivých prostor.", badges: ["interiér", "diskrétní"], icon: CI.hidden, photo: "cam-hidden.jpg" },
   ];
   const ANGLES = [
     { key: "wide", label: "Široký úhel (~110°)", desc: "Zachytí velkou plochu zblízka – dvůr, parkoviště, velkou místnost. Vidíte všechno, ale ne do dálky.", icon: CI.wide },
@@ -1495,20 +1493,48 @@ pages.push({
   ];
 
   // Orientační ceník — nejlevnější odpovídající produkt z aktuálního ceníku materiálu (nákupní ceny bez marže).
-  // Ajax kamery mají skutečnou cenu podle typu/rozlišení/barvy, Dahua podle typu (katalog neuvádí rozlišení/barvu v názvu).
+  // Zorný úhel se u obou značek reálně řeší jen dvěma pevnými ohnisky v základní řadě (2.8 mm = široký úhel,
+  // 3.6-4 mm = střední úhel) a dražší varifokální/motorzoom řadou (2.7-13.5 mm), která jako jediná umí i úzký
+  // záběr — proto úzký úhel cenově odpovídá motorzoomu, ne střednímu úhlu (dřív byl úzký úhel podceněný).
   const MARZE = 1.15;
   const LABOR_FIRST_HOUR = 850;
   const LABOR_NEXT_HOUR = 650;
   const LABOR_HOURS_PER_CAMERA = 2; // odvozeno z výchozí jednotky: 4 kabelové IP kamery = 8 hodin montáže
   const PROGRAMOVANI_FIXNI = 1080; // 1 hodina programování, fixně za celý projekt
+  const ANGLE_LENS_TIER = { wide: "wide", medium: "medium", narrow: "motorzoom", motorzoom: "motorzoom" };
+  const DAHUA_PTZ_PRICE = 2938; // nejlevnější reálná Dahua mini-PTZ (SD2A500NB-GNY-A-PV-0400B)
 
+  // Ajax: rozlišení i ohnisko jsou přímo v názvu produktu ("TurretCam (5 Mpx/2.8 mm)"), cena je stejná
+  // pro obě pevná ohniska (2.8 i 4 mm), liší se jen podle rozlišení a varifokální (HLVF) řady.
   const AJAX_CAM_PRICES = {
-    bullet: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
-    turret: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
-    dome: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
-    hidden: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
+    bullet: { 5: { wide: 2907, medium: 2907, motorzoom: 6762 }, 8: { wide: 3875, medium: 3875, motorzoom: 9363 } },
+    turret: { 5: { wide: 2907, medium: 2907, motorzoom: 6762 }, 8: { wide: 3875, medium: 3875, motorzoom: 9363 } },
+    dome: { 5: { wide: 2907, medium: 2907, motorzoom: 6762 }, 8: { wide: 3875, medium: 3875, motorzoom: 9363 } },
   };
-  const DAHUA_CAM_PRICES = { bullet: 1668, turret: 1699, dome: 1484, hidden: 1484, ptz: 2938 };
+  // Dahua: rozlišení (2/4/5/8 Mpx) a ohnisko jsou zakódované v označení modelu (např. IPC-HFW2449S-S-IL-0280B =
+  // 4 Mpx, ohnisko 2.8 mm) podle veřejné konvence názvosloví Dahua. Ceny jsou nejlevnější reálné SKU pro danou
+  // kombinaci typ×rozlišení×ohnisko z aktuálního ceníku materiálu; kde katalog danou kombinaci nenabízí, je cena
+  // dopočtená z reálného poměru cen mezi ohnisky u kombinací, kde srovnání existuje (střední ≈ 1,75×, motorzoom ≈ 2,7× širokého).
+  const DAHUA_CAM_PRICES = {
+    bullet: {
+      2: { wide: 1699, medium: 2601, motorzoom: 4587 },
+      4: { wide: 1668, medium: 2938, motorzoom: 4820 },
+      5: { wide: 3504, medium: 6132, motorzoom: 9461 },
+      8: { wide: 3641, medium: 3932, motorzoom: 5585 },
+    },
+    turret: {
+      2: { wide: 1699, medium: 2973, motorzoom: 4587 },
+      4: { wide: 2066, medium: 3616, motorzoom: 5578 },
+      5: { wide: 4927, medium: 8622, motorzoom: 13303 },
+      8: { wide: 3672, medium: 5585, motorzoom: 5585 },
+    },
+    dome: {
+      2: { wide: 1484, medium: 2597, motorzoom: 3521 },
+      4: { wide: 1729, medium: 3026, motorzoom: 4820 },
+      5: { wide: 4927, medium: 4995, motorzoom: 4995 },
+      8: { wide: 5707, medium: 5707, motorzoom: 5707 },
+    },
+  };
   const NVR_PRICES = {
     dahua: { 4: 2647, 8: 2770, 16: 4759, 32: 6977 },
     ajax: { 8: 4022, 16: 6196, 32: 12291 },
@@ -1699,6 +1725,8 @@ pages.push({
   var LABOR_NEXT_HOUR = ${JSON.stringify(LABOR_NEXT_HOUR)};
   var LABOR_HOURS_PER_CAMERA = ${JSON.stringify(LABOR_HOURS_PER_CAMERA)};
   var PROGRAMOVANI_FIXNI = ${JSON.stringify(PROGRAMOVANI_FIXNI)};
+  var ANGLE_LENS_TIER = ${JSON.stringify(ANGLE_LENS_TIER)};
+  var DAHUA_PTZ_PRICE = ${JSON.stringify(DAHUA_PTZ_PRICE)};
   var AJAX_CAM_PRICES = ${JSON.stringify(AJAX_CAM_PRICES)};
   var DAHUA_CAM_PRICES = ${JSON.stringify(DAHUA_CAM_PRICES)};
   var NVR_PRICES = ${JSON.stringify(NVR_PRICES)};
@@ -1797,13 +1825,15 @@ pages.push({
   function rekTypLabel(v){ return v==="nvr" ? "NVR (IP)" : "Bez rekordéru"; }
 
   function cameraPurchasePrice(c){
-    if(c.znacka === "ajax" && c.typ !== "ptz"){
+    if(c.typ === "ptz") return DAHUA_PTZ_PRICE;
+    var lensTier = ANGLE_LENS_TIER[c.uhel] || "wide";
+    if(c.znacka === "ajax"){
       var mpx = c.rozliseni >= 8 ? 8 : 5;
-      var table = AJAX_CAM_PRICES[c.typ];
-      var hit = table && table[mpx + "_" + c.barva];
-      if(hit != null) return hit;
+      var aTable = AJAX_CAM_PRICES[c.typ] && AJAX_CAM_PRICES[c.typ][mpx];
+      if(aTable) return aTable[lensTier];
     }
-    return DAHUA_CAM_PRICES[c.typ] || 0;
+    var dTable = DAHUA_CAM_PRICES[c.typ] && DAHUA_CAM_PRICES[c.typ][c.rozliseni];
+    return dTable ? dTable[lensTier] : 0;
   }
   function cameraSellPrice(c){ return cameraPurchasePrice(c) * MARZE; }
   function recorderBrand(){ return state.cameras.some(function(c){ return c.znacka === "ajax"; }) ? "ajax" : "dahua"; }
