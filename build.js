@@ -1783,6 +1783,8 @@ pages.push({
       var btn = wiz.querySelector('[data-seg="camRozliseni"] [data-val="'+v+'"]');
       if(btn) btn.disabled = (znacka === "ajax");
     });
+    var kabelBtn = wiz.querySelector('[data-pick="camPrenos"] [data-val="kabel"]');
+    if(kabelBtn) kabelBtn.disabled = (znacka === "ajax");
   }
 
   function onGroupChange(group, val){
