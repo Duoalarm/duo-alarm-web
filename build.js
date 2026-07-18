@@ -268,6 +268,8 @@ function footer(base) {
       <div class="footer-col">
         <h4>Pro zákazníky</h4>
         <ul>
+          <li><a href="${base}cctv-navrhar">CCTV návrhář</a></li>
+          <li><a href="${base}kalkulacka">Kalkulačka úložiště</a></li>
           <li><a href="${base}certifikace">Certifikace</a></li>
           <li><a href="${base}realizace">Realizace</a></li>
           <li><a href="${base}o-firme">O firmě</a></li>
@@ -873,10 +875,17 @@ pages.push({
   <div class="container">
     <div class="calc-callout" data-reveal>
       <div>
+        <h3>Nevíte, kolik kamer a jaké typy potřebujete?</h3>
+        <p>Naklikejte si vlastní kamerový systém krok za krokem v našem CCTV návrháři a pošleme vám na e-mail nezávaznou nabídku.</p>
+      </div>
+      <a class="btn btn-gold" href="cctv-navrhar">CCTV návrhář ${I.arrow}</a>
+    </div>
+    <div class="calc-callout" data-reveal style="margin-top:1rem">
+      <div>
         <h3>Nevíte, jak velký disk potřebujete?</h3>
         <p>Spočítejte si orientačně, kolik úložiště váš kamerový systém spotřebuje a na jak dlouho vám vyjde archivace.</p>
       </div>
-      <a class="btn btn-gold" href="../kalkulacka">Kalkulačka úložiště ${I.arrow}</a>
+      <a class="btn btn-gold" href="kalkulacka">Kalkulačka úložiště ${I.arrow}</a>
     </div>
   </div>
 </section>`,
@@ -1419,6 +1428,677 @@ pages.push({
 </script>`,
     { noindex: false })
 });
+
+/* ---------- CCTV NÁVRHÁŘ ---------- */
+(function () {
+  const base = "";
+  const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/n9j3y6yotms66e09zrdg6b3oduutajwc";
+
+  const CI = {
+    bullet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="12" height="6" rx="2"/><path d="M15 9l4-2v10l-4-2"/><path d="M6 15v2a2 2 0 0 0 2 2h1"/></svg>',
+    dome: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a8 4 0 0 1 16 0"/><path d="M4 14h16"/><path d="M12 14v3"/><circle cx="12" cy="11.6" r="1.5"/></svg>',
+    turret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 4 0 0 1 16 0"/><circle cx="14" cy="12" r="4"/><circle cx="14" cy="12" r="1.2"/></svg>',
+    ptz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/><path d="M3 12a9 9 0 0 1 3-6.7"/><path d="M3 12a9 9 0 0 0 3 6.7"/><path d="M4.6 4.3l1.4 1-.3-1.7"/></svg>',
+    hidden: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="12" r="7" stroke-dasharray="2 3"/></svg>',
+    wide: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18L3 4"/><path d="M12 18L21 4"/><path d="M5.2 7.4A10 10 0 0 1 18.8 7.4"/><rect x="8.4" y="18" width="7.2" height="5" rx="1.4"/><circle cx="12" cy="20.4" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    medium: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18L6 3"/><path d="M12 18L18 3"/><path d="M7.6 8.4A8 8 0 0 1 16.4 8.4"/><rect x="8.4" y="18" width="7.2" height="5" rx="1.4"/><circle cx="12" cy="20.4" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    narrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18L9 2"/><path d="M12 18L15 2"/><path d="M9.8 9A5 5 0 0 1 14.2 9"/><rect x="8.4" y="18" width="7.2" height="5" rx="1.4"/><circle cx="12" cy="20.4" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    motorzoom: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="13" height="8" rx="2"/><path d="M16 10l5-2.5v9L16 14"/><circle cx="8.5" cy="12" r="2.6"/><path d="M8.5 9.4v-2M8.5 14.6v2M5.9 12h-2M11.1 12h2"/></svg>',
+    byt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="1"/><circle cx="14.5" cy="12" r="1" fill="currentColor" stroke="none"/><path d="M2 22h20"/></svg>',
+    sklad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="13" width="7" height="7"/><rect x="14" y="13" width="7" height="7"/><rect x="8.5" y="4" width="7" height="7"/></svg>',
+    prodejna: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/><path d="M5 9v11h14V9"/><rect x="10" y="14" width="4" height="6"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>',
+  };
+
+  const OBJ_TYPES = [
+    { key: "dum", label: "Rodinný dům", icon: I.home },
+    { key: "byt", label: "Byt", icon: CI.byt },
+    { key: "firma", label: "Firma / kancelář", icon: I.building },
+    { key: "sklad", label: "Sklad", icon: CI.sklad },
+    { key: "prodejna", label: "Prodejna", icon: CI.prodejna },
+    { key: "jine", label: "Jiné", icon: I.settings },
+  ];
+  const CAM_TYPES = [
+    { key: "bullet", label: "Bullet (válcová)", desc: "Podlouhlá kamera s viditelným směrem. Hlídá příjezdovou cestu, plot nebo vjezd a jasně signalizuje, že je prostor střežený.", badges: ["exteriér", "odstrašující efekt"], icon: CI.bullet, photo: "cam-bullet.jpg" },
+    { key: "dome", label: "Dome (kopulová)", desc: "Diskrétní kamera pod krytem, těžko se pozná, kam přesně míří. Odolná proti poškození, vhodná do obchodů, chodeb i garáží.", badges: ["interiér i exteriér", "diskrétní"], icon: CI.dome, photo: "cam-dome.jpg" },
+    { key: "turret", label: "Turret (eyeball)", desc: "Kompaktní kamera v „očku“ s velmi dobrým nočním viděním bez odlesků. Univerzální volba pro dům i firmu.", badges: ["interiér i exteriér", "univerzální"], icon: CI.turret, photo: "cam-turret.jpg" },
+    { key: "ptz", label: "PTZ (otočná)", desc: "Motoricky se otáčí a přibližuje. Pro velké plochy jako parkoviště, dvory nebo sklady, kde jedna kamera pokryje víc.", badges: ["velké plochy", "ovladatelná"], icon: CI.ptz, photo: "cam-ptz.jpg" },
+    { key: "hidden", label: "Skrytá / mini", desc: "Nenápadná kamera pro diskrétní monitoring tam, kde nemá být vidět. Vhodná do interiéru a citlivých prostor.", badges: ["interiér", "diskrétní"], icon: CI.hidden, photo: "cam-hidden.jpg" },
+  ];
+  const ANGLES = [
+    { key: "wide", label: "Široký úhel (~110°)", desc: "Zachytí velkou plochu zblízka – dvůr, parkoviště, velkou místnost. Vidíte všechno, ale ne do dálky.", icon: CI.wide },
+    { key: "medium", label: "Střední úhel (~90°)", desc: "Univerzální kompromis mezi přehledem a detailem. Nejčastější volba na vchod, chodbu nebo garáž.", icon: CI.medium },
+    { key: "narrow", label: "Úzký úhel (~70°)", desc: "Vidí do dálky s dobrým detailem, ale jen v úzkém výřezu. Hodí se na bránu, vjezd nebo přístupovou cestu.", icon: CI.narrow },
+    { key: "motorzoom", label: "Motorzoom", desc: "Úhel lze měnit na dálku, od širokého po úzký. Ideální, když si nejste jistí nebo chcete doladit záběr až po instalaci.", icon: CI.motorzoom },
+  ];
+  const BRANDS = [
+    { key: "ajax", label: "Ajax", desc: "Bezdrátový ekosystém s velmi snadnou instalací, skvěle se doplňuje s alarmem Ajax." },
+    { key: "dahua", label: "Dahua", desc: "Špičkové IP kamery se širokou nabídkou rozlišení a funkcí za dobrou cenu." },
+    { key: "hikvision", label: "Hikvision", desc: "Zavedený výrobce IP kamer s bohatou nabídkou pro domácnosti i firmy." },
+    { key: "doporucit", label: "Doporučit / je mi to jedno", desc: "Necháte výběr značky na nás podle typu objektu a vašich potřeb." },
+  ];
+  const TRANSFER = [
+    { key: "kabel", label: "Kabelem (PoE)", desc: "Nejstabilnější a nejspolehlivější přenos i napájení jedním kabelem. Vhodné u novostaveb a všude, kde lze vést kabeláž." },
+    { key: "wifi", label: "Bezdrátově (WiFi)", desc: "Jednodušší instalace bez sekání do zdí, ale závisí na kvalitě WiFi signálu a napájení je často potřeba řešit zvlášť." },
+  ];
+  const BARVY = [
+    { key: "bila", label: "Bílá" },
+    { key: "cerna", label: "Černá" },
+  ];
+  const ENV_EXPOSURE = [
+    { key: "interier-suchy", label: "Suchý interiér", desc: "Kancelář, obývák, chodba – bez vlhkosti a prachu.", badges: ["IP20"] },
+    { key: "interier-vlhky", label: "Vlhčí interiér", desc: "Koupelna, sklep, garáž – vyšší vlhkost nebo prach ve vzduchu.", badges: ["IP54"] },
+    { key: "exterier-kryty", label: "Exteriér pod přístřeškem", desc: "Pod okapem, pergolou nebo verandou – chráněno před přímým deštěm.", badges: ["IP65"] },
+    { key: "exterier-plny", label: "Exteriér naplno vystavený", desc: "Přímo v dešti, sněhu i prachu, bez žádné ochrany okolím.", badges: ["IP66"] },
+  ];
+
+  // Orientační ceník — nejlevnější odpovídající produkt z aktuálního ceníku materiálu (nákupní ceny bez marže).
+  // Ajax kamery mají skutečnou cenu podle typu/rozlišení/barvy, Dahua podle typu (katalog neuvádí rozlišení/barvu v názvu).
+  const MARZE = 1.15;
+  const LABOR_FIRST_HOUR = 850;
+  const LABOR_NEXT_HOUR = 650;
+  const LABOR_HOURS_PER_CAMERA = 2; // odvozeno z výchozí jednotky: 4 kabelové IP kamery = 8 hodin montáže
+  const PROGRAMOVANI_FIXNI = 1080; // 1 hodina programování, fixně za celý projekt
+
+  const AJAX_CAM_PRICES = {
+    bullet: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
+    turret: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
+    dome: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
+    hidden: { "5_bila": 2907, "5_cerna": 2907, "8_bila": 3875, "8_cerna": 3875 },
+  };
+  const DAHUA_CAM_PRICES = { bullet: 1668, turret: 1699, dome: 1484, hidden: 1484, ptz: 2938 };
+  const NVR_PRICES = {
+    dahua: { 4: 2647, 8: 2770, 16: 4759, 32: 6977 },
+    ajax: { 8: 4022, 16: 6196, 32: 12291 },
+  };
+
+  function pickGrid(name, items, defaultKey, small) {
+    return `<div class="pick-grid" data-pick="${name}">
+      ${items.map(it => `<button type="button" class="pick-card${small ? " pick-card--sm" : ""}" data-val="${it.key}" aria-pressed="${it.key === defaultKey ? "true" : "false"}">
+        ${it.photo ? `<div class="pick-photo"><img src="${base}assets/img/${it.photo}" alt="${it.label}"></div>` : (it.icon ? `<div class="ic-gold">${it.icon}</div>` : "")}
+        <b>${it.label}</b>
+        ${it.desc ? `<p>${it.desc}</p>` : ""}
+        ${it.badges ? `<div class="badges">${it.badges.map(b => `<span>${b}</span>`).join("")}</div>` : ""}
+      </button>`).join("")}
+    </div>`;
+  }
+
+  const body =
+    pageHero(base, [{ label: "Domů", href: "./" }, { label: "Kamerové systémy", href: "kamerove-systemy" }, { label: "CCTV návrhář" }],
+      "CCTV návrhář kamerového systému",
+      "Naklikejte si vlastní kamerový systém krok za krokem – umístění, typ i počet kamer. Na konci vám pošleme nezávaznou cenovou nabídku na e-mail.") +
+`<section class="section section--tight">
+  <div class="container" style="max-width:920px">
+    <div class="wiz" id="wiz">
+      <div class="wiz-steps">
+        <div class="wiz-step is-active" data-step="1" role="button" tabindex="0"><b>1</b><span class="wiz-step-label">Objekt</span></div>
+        <div class="wiz-step-line"></div>
+        <div class="wiz-step" data-step="2" role="button" tabindex="0"><b>2</b><span class="wiz-step-label">Kamery</span></div>
+        <div class="wiz-step-line"></div>
+        <div class="wiz-step" data-step="3" role="button" tabindex="0"><b>3</b><span class="wiz-step-label">Rekordér</span></div>
+        <div class="wiz-step-line"></div>
+        <div class="wiz-step" data-step="4" role="button" tabindex="0"><b>4</b><span class="wiz-step-label">Souhrn</span></div>
+        <div class="wiz-step-line"></div>
+        <div class="wiz-step" data-step="5" role="button" tabindex="0"><b>5</b><span class="wiz-step-label">Kontakt</span></div>
+      </div>
+
+      <div class="wiz-panel is-active" data-panel="1">
+        <h2 class="wiz-h">Základ objektu</h2>
+        <p class="wiz-sub">Vyberte typ objektu a prostředí, které budeme zabezpečovat.</p>
+        <div class="calc-field">
+          <label class="calc-label">Typ objektu</label>
+          ${pickGrid("objTyp", OBJ_TYPES, null, true)}
+        </div>
+        <div class="calc-field">
+          <label class="calc-label">Prostředí</label>
+          <div class="calc-seg" data-seg="prostredi">
+            <button type="button" data-val="interier" aria-pressed="false">Interiér</button>
+            <button type="button" data-val="exterier" aria-pressed="false">Exteriér</button>
+            <button type="button" data-val="kombinace" aria-pressed="true">Kombinace</button>
+          </div>
+        </div>
+        <p class="wiz-err" data-err="1"></p>
+      </div>
+
+      <div class="wiz-panel" data-panel="2">
+        <h2 class="wiz-h">Návrh a rozmístění kamer</h2>
+        <p class="wiz-sub">Přidejte kamery na jednotlivé pozice. Kdykoliv je můžete upravit, duplikovat nebo smazat.</p>
+        <p class="cam-toast" id="camToast" role="status" aria-live="polite"></p>
+        <div class="cam-list" id="camList"></div>
+        <div class="wiz" style="padding:1.4rem" id="camForm">
+          <div class="calc-field">
+            <label class="calc-label" for="camPos">Umístění kamery</label>
+            <input type="text" id="camPos" class="calc-num" style="width:100%" placeholder="např. vchodové dveře, garáž, plot – sever">
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Typ kamery</label>
+            ${pickGrid("camTyp", CAM_TYPES, "dome")}
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Značka</label>
+            ${pickGrid("camZnacka", BRANDS, "doporucit", true)}
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Rozlišení</label>
+            <div class="calc-seg" data-seg="camRozliseni">
+              <button type="button" data-val="2" aria-pressed="false">2 Mpx<small>Full HD</small></button>
+              <button type="button" data-val="4" aria-pressed="true">4 Mpx<small>2K</small></button>
+              <button type="button" data-val="5" aria-pressed="false">5 Mpx<small>vyšší detail</small></button>
+              <button type="button" data-val="8" aria-pressed="false">8 Mpx<small>4K</small></button>
+            </div>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Barva kamery</label>
+            <div class="calc-seg" data-seg="camBarva">
+              <button type="button" data-val="bila" aria-pressed="true">Bílá</button>
+              <button type="button" data-val="cerna" aria-pressed="false">Černá</button>
+            </div>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Zorný úhel</label>
+            ${pickGrid("camUhel", ANGLES, "medium")}
+            <p class="calc-hint">Čím širší úhel, tím větší přehled, ale menší detail na dálku. Čím užší úhel, tím větší dosah a detail, ale užší záběr.</p>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Kam se bude kamera instalovat</label>
+            ${pickGrid("camProstredi", ENV_EXPOSURE, "exterier-kryty")}
+            <p class="calc-hint">Podle prostředí doporučíme vhodnou odolnost krytu proti vodě a prachu (krytí IP).</p>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Noční vidění / přísvit</label>
+            <div class="calc-seg" data-seg="camNocni">
+              <button type="button" data-val="ano" aria-pressed="true">Ano</button>
+              <button type="button" data-val="ne" aria-pressed="false">Ne</button>
+            </div>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Přenos dat a napájení</label>
+            ${pickGrid("camPrenos", TRANSFER, "kabel", true)}
+          </div>
+          <div class="calc-field">
+            <label class="calc-label" for="camPocet">Počet kusů této konfigurace</label>
+            <input type="number" id="camPocet" class="calc-num" min="1" max="50" value="1">
+          </div>
+          <button type="button" class="btn btn-gold" id="camAddBtn">Přidat kameru ${I.arrow}</button>
+          <button type="button" class="btn btn-ghost" id="camCancelBtn" style="display:none">Zrušit úpravu</button>
+        </div>
+        <p class="wiz-err" data-err="2"></p>
+      </div>
+
+      <div class="wiz-panel" data-panel="3">
+        <h2 class="wiz-h">Nahrávací zařízení</h2>
+        <p class="wiz-sub">Podle počtu kamer doporučíme vhodný rekordér a orientační velikost disku.</p>
+        <div class="calc-field">
+          <label class="calc-label">Typ rekordéru</label>
+          <div class="calc-seg" data-seg="rekTyp">
+            <button type="button" data-val="nvr" aria-pressed="true">NVR (IP)<small>doporučeno</small></button>
+            <button type="button" data-val="bez" aria-pressed="false">Bez rekordéru<small>cloud / SD karta</small></button>
+          </div>
+        </div>
+        <div class="wiz-summary">
+          <div class="wiz-sum-row"><span>Doporučený počet kanálů</span><b id="rekKanaly">–</b></div>
+          <div class="wiz-sum-row"><span>Orientační velikost disku (14 dní záznamu)</span><b id="rekHdd">–</b></div>
+        </div>
+        <p class="calc-note">Jde o orientační odhad. Pro přesný výpočet podle vlastních parametrů použijte naši <a href="kalkulacka" style="color:var(--gold)">kalkulačku úložiště</a>.</p>
+      </div>
+
+      <div class="wiz-panel" data-panel="4">
+        <h2 class="wiz-h">Rekapitulace</h2>
+        <p class="wiz-sub">Zkontrolujte si návrh, než ho pošlete. Kdykoliv se můžete vrátit a něco upravit.</p>
+        <div class="wiz-summary" id="sumBox"></div>
+      </div>
+
+      <div class="wiz-panel" data-panel="5">
+        <h2 class="wiz-h">Kontaktní údaje</h2>
+        <p class="wiz-sub">Pošleme vám na e-mail nezávaznou cenovou nabídku na míru vašemu návrhu.</p>
+        <div class="form-row">
+          <div class="field"><label for="cJmeno">Jméno a příjmení <span class="req">*</span></label><input id="cJmeno" autocomplete="name"></div>
+          <div class="field"><label for="cEmail">E-mail <span class="req">*</span></label><input id="cEmail" type="email" autocomplete="email"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="cTel">Telefon</label><input id="cTel" type="tel" autocomplete="tel"></div>
+        </div>
+        <div class="field"><label for="cPoznamka">Poznámka</label><textarea id="cPoznamka" rows="3" placeholder="Cokoliv dalšího, co bychom měli vědět…"></textarea></div>
+        <input type="text" id="cWebsite" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0">
+        <label class="consent"><input type="checkbox" id="cGdpr"> Souhlasím se zpracováním osobních údajů dle <a href="gdpr">zásad zpracování</a>. <span class="req">*</span></label>
+        <p class="wiz-err" data-err="5"></p>
+      </div>
+
+      <div class="wiz-nav">
+        <button type="button" class="btn btn-ghost" id="wizBack" style="visibility:hidden">Zpět</button>
+        <button type="button" class="btn btn-gold" id="wizNext">Další ${I.arrow}</button>
+      </div>
+
+      <div id="wizThanksBox" style="display:none;text-align:center;padding:1.4rem 0">
+        <h2 class="wiz-h">Děkujeme za váš návrh!</h2>
+        <p class="wiz-sub">Nabídku vám zašleme na e-mail nejpozději do 2 pracovních dní.</p>
+        <a class="btn btn-gold" href="./">Zpět na úvod ${I.arrow}</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var wiz = document.getElementById("wiz");
+  if(!wiz) return;
+  var MAKE_WEBHOOK_URL = ${JSON.stringify(MAKE_WEBHOOK_URL)};
+  var CAM_PHOTOS = ${JSON.stringify(Object.fromEntries(CAM_TYPES.map(c => [c.key, base + "assets/img/" + c.photo])))};
+  var ACT_ICONS = ${JSON.stringify({ edit: CI.edit, dup: CI.copy, del: CI.trash })};
+  var CAM_LABELS = ${JSON.stringify(Object.fromEntries(CAM_TYPES.map(c => [c.key, c.label])))};
+  var ANGLE_LABELS = ${JSON.stringify(Object.fromEntries(ANGLES.map(a => [a.key, a.label])))};
+  var BRAND_LABELS = ${JSON.stringify(Object.fromEntries(BRANDS.map(b => [b.key, b.label])))};
+  var TRANSFER_LABELS = ${JSON.stringify(Object.fromEntries(TRANSFER.map(t => [t.key, t.label])))};
+  var OBJ_LABELS = ${JSON.stringify(Object.fromEntries(OBJ_TYPES.map(o => [o.key, o.label])))};
+  var BARVA_LABELS = ${JSON.stringify(Object.fromEntries(BARVY.map(b => [b.key, b.label])))};
+  var ENV_LABELS = ${JSON.stringify(Object.fromEntries(ENV_EXPOSURE.map(e => [e.key, e.label])))};
+  var ENV_BADGES = ${JSON.stringify(Object.fromEntries(ENV_EXPOSURE.map(e => [e.key, e.badges[0]])))};
+  var MARZE = ${JSON.stringify(MARZE)};
+  var LABOR_FIRST_HOUR = ${JSON.stringify(LABOR_FIRST_HOUR)};
+  var LABOR_NEXT_HOUR = ${JSON.stringify(LABOR_NEXT_HOUR)};
+  var LABOR_HOURS_PER_CAMERA = ${JSON.stringify(LABOR_HOURS_PER_CAMERA)};
+  var PROGRAMOVANI_FIXNI = ${JSON.stringify(PROGRAMOVANI_FIXNI)};
+  var AJAX_CAM_PRICES = ${JSON.stringify(AJAX_CAM_PRICES)};
+  var DAHUA_CAM_PRICES = ${JSON.stringify(DAHUA_CAM_PRICES)};
+  var NVR_PRICES = ${JSON.stringify(NVR_PRICES)};
+
+  var state = { step: 1, cameras: [], editIndex: -1, camIdSeq: 1, lastChangedId: -1, maxStep: 1 };
+  var camToastTimer = null;
+  function showCamToast(msg){
+    var el = document.getElementById("camToast");
+    if(!el) return;
+    el.textContent = msg;
+    el.classList.add("is-shown");
+    clearTimeout(camToastTimer);
+    camToastTimer = setTimeout(function(){ el.classList.remove("is-shown"); }, 2200);
+  }
+  function scrollToNewCamItem(){
+    var el = document.getElementById("camNewItem");
+    if(el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function pad2(n){ return String(n).padStart(2,"0"); }
+
+  function bindGroup(sel, attr){
+    wiz.querySelectorAll(sel).forEach(function(group){
+      group.addEventListener("click", function(e){
+        var btn = e.target.closest("button"); if(!btn || !group.contains(btn)) return;
+        group.querySelectorAll("button").forEach(function(b){ b.setAttribute("aria-pressed", b===btn ? "true":"false"); });
+        onGroupChange(group.getAttribute(attr), btn.getAttribute("data-val"));
+      });
+    });
+  }
+  bindGroup(".pick-grid", "data-pick");
+  bindGroup(".calc-seg", "data-seg");
+
+  function groupVal(name){
+    var el = wiz.querySelector('[data-pick="'+name+'"], [data-seg="'+name+'"]');
+    if(!el) return null;
+    var b = el.querySelector('[aria-pressed="true"]');
+    return b ? b.getAttribute("data-val") : null;
+  }
+  function setGroupVal(name, val){
+    var el = wiz.querySelector('[data-pick="'+name+'"], [data-seg="'+name+'"]');
+    if(!el) return;
+    el.querySelectorAll("button").forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-val")===val ? "true":"false"); });
+  }
+  function applyCompatibility(){
+    var znacka = groupVal("camZnacka");
+    var typ = groupVal("camTyp");
+    var ptzBtn = wiz.querySelector('[data-pick="camTyp"] [data-val="ptz"]');
+    var ajaxBtn = wiz.querySelector('[data-pick="camZnacka"] [data-val="ajax"]');
+    if(ptzBtn) ptzBtn.disabled = (znacka === "ajax");
+    if(ajaxBtn) ajaxBtn.disabled = (typ === "ptz");
+    var cernaBtn = wiz.querySelector('[data-seg="camBarva"] [data-val="cerna"]');
+    if(cernaBtn) cernaBtn.disabled = (znacka === "dahua");
+    ["2","4"].forEach(function(v){
+      var btn = wiz.querySelector('[data-seg="camRozliseni"] [data-val="'+v+'"]');
+      if(btn) btn.disabled = (znacka === "ajax");
+    });
+  }
+
+  function onGroupChange(group, val){
+    if(group === "camZnacka" && val === "ajax"){
+      setGroupVal("camPrenos", "wifi");
+      if(groupVal("camTyp") === "ptz") setGroupVal("camTyp", "dome");
+      var rozl = groupVal("camRozliseni");
+      if(rozl === "2" || rozl === "4") setGroupVal("camRozliseni", "5");
+    }
+    if(group === "camZnacka" && val === "dahua"){
+      if(groupVal("camBarva") === "cerna") setGroupVal("camBarva", "bila");
+    }
+    if(group === "camTyp" && val === "ptz"){
+      if(groupVal("camZnacka") === "ajax") setGroupVal("camZnacka", "doporucit");
+    }
+    applyCompatibility();
+  }
+
+  function showErr(n, msg){
+    var el = wiz.querySelector('[data-err="'+n+'"]');
+    if(!el) return;
+    if(msg){ el.textContent = msg; el.classList.add("is-shown"); }
+    else { el.classList.remove("is-shown"); }
+  }
+
+  function totalCameraCount(){ return state.cameras.reduce(function(s,c){ return s + c.pocet; }, 0); }
+  function suggestChannels(n){ var opts=[4,8,16,32]; for(var i=0;i<opts.length;i++){ if(opts[i]>=n) return opts[i]; } return Math.ceil(n/32)*32; }
+  function fmtTb(tb){
+    if(tb < 1) return Math.max(1, Math.round(tb*1000)) + " GB";
+    if(tb < 10) return (Math.round(tb*10)/10).toString().replace(".", ",") + " TB";
+    return Math.round(tb) + " TB";
+  }
+  function estimateHdd(){
+    var days = 14, hours = 24, bytesPerDay = 0;
+    state.cameras.forEach(function(c){
+      bytesPerDay += c.rozliseni * 1e6/8 * 3600 * hours * c.pocet;
+    });
+    return bytesPerDay * days / 1e12;
+  }
+  function rekTypLabel(v){ return v==="nvr" ? "NVR (IP)" : "Bez rekordéru"; }
+
+  function cameraPurchasePrice(c){
+    if(c.znacka === "ajax" && c.typ !== "ptz"){
+      var mpx = c.rozliseni >= 8 ? 8 : 5;
+      var table = AJAX_CAM_PRICES[c.typ];
+      var hit = table && table[mpx + "_" + c.barva];
+      if(hit != null) return hit;
+    }
+    return DAHUA_CAM_PRICES[c.typ] || 0;
+  }
+  function cameraSellPrice(c){ return cameraPurchasePrice(c) * MARZE; }
+  function recorderBrand(){ return state.cameras.some(function(c){ return c.znacka === "ajax"; }) ? "ajax" : "dahua"; }
+  function recorderChannels(){
+    var tier = suggestChannels(totalCameraCount());
+    if(recorderBrand() === "ajax" && tier === 4) tier = 8; // Ajax nemá 4kanálový NVR
+    return tier;
+  }
+  function recorderPurchasePrice(){
+    var table = NVR_PRICES[recorderBrand()];
+    return (table && table[recorderChannels()]) || 0;
+  }
+  function recorderSellPrice(){ return recorderPurchasePrice() * MARZE; }
+  function laborCost(){
+    var n = totalCameraCount();
+    if(n === 0) return 0;
+    var hours = n * LABOR_HOURS_PER_CAMERA;
+    return LABOR_FIRST_HOUR + Math.max(0, hours - 1) * LABOR_NEXT_HOUR;
+  }
+  function materialCost(){
+    var camsTotal = state.cameras.reduce(function(sum,c){ return sum + cameraSellPrice(c) * c.pocet; }, 0);
+    var rekTotal = groupVal("rekTyp") === "nvr" ? recorderSellPrice() : 0;
+    return camsTotal + rekTotal;
+  }
+  function totalPrice(){
+    if(totalCameraCount() === 0) return 0;
+    return materialCost() + laborCost() + PROGRAMOVANI_FIXNI;
+  }
+
+  function updateRecorder(){
+    var n = totalCameraCount();
+    document.getElementById("rekKanaly").textContent = n ? (recorderChannels() + " kanálů") : "–";
+    document.getElementById("rekHdd").textContent = n ? fmtTb(estimateHdd()) : "–";
+  }
+
+  function camSummaryLine(c){
+    return CAM_LABELS[c.typ] + ' · ' + BRAND_LABELS[c.znacka] + ' · ' + (BARVA_LABELS[c.barva]||"") + ' · ' + c.rozliseni + ' Mpx · ' + ANGLE_LABELS[c.uhel] +
+      ' · ' + (ENV_LABELS[c.prostredi]||"") + ' (' + (ENV_BADGES[c.prostredi]||"") + ')' + (c.nocni?' · noční vidění':'') + ' · ' + TRANSFER_LABELS[c.prenos];
+  }
+
+  function renderCamList(){
+    var box = document.getElementById("camList");
+    if(state.cameras.length === 0){
+      box.innerHTML = '<div class="cam-empty">Zatím jste nepřidali žádnou kameru.</div>';
+      return;
+    }
+    box.innerHTML = state.cameras.map(function(c, i){
+      var isNew = c._id === state.lastChangedId;
+      return '<div class="cam-item' + (isNew ? " cam-item--new" : "") + '"' + (isNew ? ' id="camNewItem"' : "") + '>' +
+        '<div class="cam-thumb"><img src="' + (CAM_PHOTOS[c.typ]||"") + '" alt="' + CAM_LABELS[c.typ] + '"></div>' +
+        '<div class="cam-item-body"><b>' + c.umisteni + ' · ' + c.pocet + '×</b>' +
+        '<span>' + camSummaryLine(c) + '</span></div>' +
+        '<div class="cam-item-actions">' +
+        '<button type="button" data-act="edit" data-i="'+i+'" aria-label="Upravit kameru" title="Upravit kameru">'+ACT_ICONS.edit+'</button>' +
+        '<button type="button" data-act="dup" data-i="'+i+'" aria-label="Duplikovat kameru" title="Duplikovat kameru">'+ACT_ICONS.dup+'</button>' +
+        '<button type="button" data-act="del" data-i="'+i+'" aria-label="Smazat kameru" title="Smazat kameru">'+ACT_ICONS.del+'</button>' +
+        '</div></div>';
+    }).join("");
+  }
+
+  document.getElementById("camList").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-act]"); if(!btn) return;
+    var i = parseInt(btn.getAttribute("data-i"),10);
+    var act = btn.getAttribute("data-act");
+    if(act === "del"){
+      showCamToast("Kamera „" + state.cameras[i].umisteni + "“ byla smazána.");
+      state.lastChangedId = -1;
+      state.cameras.splice(i,1);
+      renderCamList();
+    }
+    else if(act === "dup"){
+      var copy = JSON.parse(JSON.stringify(state.cameras[i]));
+      copy._id = state.camIdSeq++;
+      state.cameras.splice(i+1,0, copy);
+      state.lastChangedId = copy._id;
+      renderCamList();
+      scrollToNewCamItem();
+      showCamToast("Kamera zduplikována.");
+    }
+    else if(act === "edit"){
+      var c = state.cameras[i];
+      document.getElementById("camPos").value = c.umisteni;
+      setGroupVal("camTyp", c.typ);
+      setGroupVal("camZnacka", c.znacka);
+      setGroupVal("camRozliseni", String(c.rozliseni));
+      setGroupVal("camBarva", c.barva);
+      setGroupVal("camUhel", c.uhel);
+      setGroupVal("camProstredi", c.prostredi);
+      setGroupVal("camNocni", c.nocni ? "ano":"ne");
+      setGroupVal("camPrenos", c.prenos);
+      document.getElementById("camPocet").value = c.pocet;
+      state.editIndex = i;
+      document.getElementById("camAddBtn").textContent = "Uložit úpravu";
+      document.getElementById("camCancelBtn").style.display = "inline-flex";
+      document.getElementById("camForm").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  });
+
+  function resetCamForm(){
+    document.getElementById("camPos").value = "";
+    document.getElementById("camPocet").value = "1";
+    setGroupVal("camTyp", "dome");
+    setGroupVal("camZnacka", "doporucit");
+    setGroupVal("camRozliseni", "4");
+    setGroupVal("camBarva", "bila");
+    setGroupVal("camUhel", "medium");
+    setGroupVal("camProstredi", "exterier-kryty");
+    setGroupVal("camNocni", "ano");
+    setGroupVal("camPrenos", "kabel");
+    state.editIndex = -1;
+    document.getElementById("camAddBtn").textContent = "Přidat kameru";
+    document.getElementById("camCancelBtn").style.display = "none";
+  }
+  document.getElementById("camCancelBtn").addEventListener("click", resetCamForm);
+  document.getElementById("camAddBtn").addEventListener("click", function(){
+    var cam = {
+      umisteni: document.getElementById("camPos").value.trim() || "Kamera",
+      typ: groupVal("camTyp") || "dome",
+      znacka: groupVal("camZnacka") || "doporucit",
+      rozliseni: parseInt(groupVal("camRozliseni"),10) || 4,
+      barva: groupVal("camBarva") || "bila",
+      uhel: groupVal("camUhel") || "medium",
+      prostredi: groupVal("camProstredi") || "exterier-kryty",
+      nocni: groupVal("camNocni") === "ano",
+      prenos: groupVal("camPrenos") || "kabel",
+      pocet: Math.max(1, parseInt(document.getElementById("camPocet").value,10) || 1),
+    };
+    var isEdit = state.editIndex >= 0;
+    if(isEdit){ cam._id = state.cameras[state.editIndex]._id; state.cameras[state.editIndex] = cam; }
+    else { cam._id = state.camIdSeq++; state.cameras.push(cam); }
+    state.lastChangedId = cam._id;
+    resetCamForm();
+    renderCamList();
+    showErr(2, null);
+    scrollToNewCamItem();
+    showCamToast(isEdit ? "Kamera „" + cam.umisteni + "“ byla upravena." : "Kamera „" + cam.umisteni + "“ byla přidána do seznamu.");
+  });
+
+  function renderSummary(){
+    var n = totalCameraCount();
+    var prostr = groupVal("prostredi");
+    var html = "";
+    html += '<div class="wiz-sum-row"><span>Typ objektu</span><b>' + (OBJ_LABELS[groupVal("objTyp")]||"–") + '</b></div>';
+    html += '<div class="wiz-sum-row"><span>Prostředí</span><b>' + (prostr==="interier"?"Interiér":prostr==="exterier"?"Exteriér":"Kombinace") + '</b></div>';
+    html += '<div class="wiz-sum-row"><span>Počet kamer</span><b>' + n + '</b></div>';
+    html += '<div class="wiz-sum-row"><span>Rekordér</span><b>' + (groupVal("rekTyp")==="nvr" ? (rekTypLabel("nvr") + ', ' + recorderChannels() + ' kanálů') : rekTypLabel("bez")) + '</b></div>';
+    html += '<div class="wiz-sum-row"><span>Orientační úložiště</span><b>' + fmtTb(estimateHdd()) + '</b></div>';
+    html += '<div class="cam-list">' + state.cameras.map(function(c){
+      return '<div class="cam-item">' +
+        '<div class="cam-thumb"><img src="' + (CAM_PHOTOS[c.typ]||"") + '" alt="' + CAM_LABELS[c.typ] + '"></div>' +
+        '<div class="cam-item-body"><b>' + c.umisteni + ' · ' + c.pocet + '×</b>' +
+        '<span>' + camSummaryLine(c) + '</span></div>' +
+      '</div>';
+    }).join("") + '</div>';
+    html += '<p class="calc-note">Cenu za tento návrh vám spočítáme a zašleme na e-mail v dalším kroku.</p>';
+    document.getElementById("sumBox").innerHTML = html;
+  }
+
+  function showStep(n){
+    state.step = n;
+    state.maxStep = Math.max(state.maxStep, n);
+    wiz.querySelectorAll(".wiz-panel").forEach(function(p){ p.classList.toggle("is-active", parseInt(p.getAttribute("data-panel"),10) === n); });
+    wiz.querySelectorAll(".wiz-step").forEach(function(s){
+      var i = parseInt(s.getAttribute("data-step"),10);
+      s.classList.toggle("is-active", i === n);
+      s.classList.toggle("is-done", i !== n && i <= state.maxStep);
+      s.setAttribute("tabindex", i <= state.maxStep ? "0" : "-1");
+      s.setAttribute("aria-disabled", i !== n && i <= state.maxStep ? "false" : "true");
+    });
+    document.getElementById("wizBack").style.visibility = n === 1 ? "hidden" : "visible";
+    document.getElementById("wizNext").textContent = n === 5 ? "Odeslat návrh" : "Další";
+    if(n === 3) updateRecorder();
+    if(n === 4) renderSummary();
+    var rect = wiz.getBoundingClientRect();
+    window.scrollTo({ top: rect.top + window.scrollY - 110, behavior: "smooth" });
+  }
+
+  function validateStep(n){
+    if(n === 1){
+      if(!groupVal("objTyp") || !groupVal("prostredi")){ showErr(1, "Vyberte prosím typ objektu a prostředí."); return false; }
+      showErr(1, null); return true;
+    }
+    if(n === 2){
+      if(state.cameras.length === 0){ showErr(2, "Přidejte prosím alespoň jednu kameru."); return false; }
+      showErr(2, null); return true;
+    }
+    if(n === 5){
+      var email = document.getElementById("cEmail").value.trim();
+      var jmeno = document.getElementById("cJmeno").value.trim();
+      var gdpr = document.getElementById("cGdpr").checked;
+      var emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+      if(!jmeno || !emailOk || !gdpr){ showErr(5, "Vyplňte prosím jméno, platný e-mail a odsouhlaste zpracování osobních údajů."); return false; }
+      showErr(5, null); return true;
+    }
+    return true;
+  }
+
+  document.getElementById("wizNext").addEventListener("click", function(){
+    if(!validateStep(state.step)) return;
+    if(state.step === 5){ submitDesign(); return; }
+    showStep(Math.min(5, state.step+1));
+  });
+  document.getElementById("wizBack").addEventListener("click", function(){ showStep(Math.max(1, state.step-1)); });
+  function goToStepFromIndicator(stepEl){
+    var target = parseInt(stepEl.getAttribute("data-step"), 10);
+    if(target !== state.step && target <= state.maxStep){ showStep(target); }
+  }
+  wiz.querySelector(".wiz-steps").addEventListener("click", function(e){
+    var stepEl = e.target.closest(".wiz-step"); if(!stepEl) return;
+    goToStepFromIndicator(stepEl);
+  });
+  wiz.querySelector(".wiz-steps").addEventListener("keydown", function(e){
+    if(e.key !== "Enter" && e.key !== " ") return;
+    var stepEl = e.target.closest(".wiz-step"); if(!stepEl) return;
+    e.preventDefault();
+    goToStepFromIndicator(stepEl);
+  });
+
+  function showThanks(){
+    wiz.querySelectorAll(".wiz-steps, .wiz-panel, .wiz-nav").forEach(function(el){ el.style.display = "none"; });
+    document.getElementById("wizThanksBox").style.display = "block";
+  }
+
+  function submitDesign(){
+    if(!validateStep(5)) return;
+    if(document.getElementById("cWebsite").value){ showThanks(); return; }
+    var btn = document.getElementById("wizNext");
+    btn.disabled = true; btn.textContent = "Odesílám…";
+
+    var now = new Date();
+    var cas = pad2(now.getDate())+"."+pad2(now.getMonth()+1)+"."+String(now.getFullYear()).slice(-2)+" "+pad2(now.getHours())+":"+pad2(now.getMinutes());
+    var n = totalCameraCount();
+    var prehled = state.cameras.map(function(c){
+      return "• " + c.umisteni + " (" + c.pocet + "×): " + camSummaryLine(c);
+    }).join("\\n");
+
+    var payload = {
+      kontakt: {
+        jmeno: document.getElementById("cJmeno").value.trim(),
+        email: document.getElementById("cEmail").value.trim(),
+        telefon: document.getElementById("cTel").value.trim(),
+        poznamka: document.getElementById("cPoznamka").value.trim(),
+      },
+      objekt: { typ: OBJ_LABELS[groupVal("objTyp")], prostredi: groupVal("prostredi") },
+      kamery: state.cameras.map(function(c){
+        return { umisteni: c.umisteni, typ: CAM_LABELS[c.typ], znacka: BRAND_LABELS[c.znacka], barva: BARVA_LABELS[c.barva], rozliseni: c.rozliseni + " Mpx", zorny_uhel: ANGLE_LABELS[c.uhel], prostredi: ENV_LABELS[c.prostredi], ip_rating: ENV_BADGES[c.prostredi], nocni_videni: c.nocni, prenos_dat: TRANSFER_LABELS[c.prenos], pocet: c.pocet, cena_ks: Math.round(cameraSellPrice(c)) };
+      }),
+      rekorder: { typ: rekTypLabel(groupVal("rekTyp")), kanalu: groupVal("rekTyp")==="nvr" ? recorderChannels() : 0, hdd_doporuceni: fmtTb(estimateHdd()), cena: groupVal("rekTyp")==="nvr" ? Math.round(recorderSellPrice()) : 0 },
+      cena: {
+        material: Math.round(materialCost()),
+        prace_montaz: Math.round(laborCost()),
+        programovani: PROGRAMOVANI_FIXNI,
+        celkem: Math.round(totalPrice()),
+      },
+      souhrn: { kamer_celkem: n },
+      cas_odeslani: now.toISOString(),
+    };
+
+    var data = new URLSearchParams();
+    data.append("jmeno", payload.kontakt.jmeno);
+    data.append("email", payload.kontakt.email);
+    data.append("telefon", payload.kontakt.telefon);
+    data.append("poznamka", payload.kontakt.poznamka);
+    data.append("objekt_typ", payload.objekt.typ);
+    data.append("objekt_prostredi", payload.objekt.prostredi);
+    data.append("pocet_kamer", String(n));
+    data.append("rekorder_typ", payload.rekorder.typ);
+    data.append("rekorder_kanaly", String(payload.rekorder.kanalu));
+    data.append("rekorder_hdd", payload.rekorder.hdd_doporuceni);
+    data.append("cena_material", String(payload.cena.material));
+    data.append("cena_prace", String(payload.cena.prace_montaz));
+    data.append("cena_programovani", String(payload.cena.programovani));
+    data.append("cena_celkem", String(payload.cena.celkem));
+    data.append("kamery_prehled", prehled);
+    data.append("payload_json", JSON.stringify(payload));
+    data.append("cas_odeslani", cas);
+
+    fetch(MAKE_WEBHOOK_URL, { method: "POST", mode: "no-cors", body: data })
+      .then(function(){ showThanks(); })
+      .catch(function(){ showErr(5, "Něco se nepovedlo a návrh se nepodařilo odeslat. Zkuste to prosím znovu, nebo nám rovnou zavolejte na +420 775 687 877."); })
+      .finally(function(){ btn.disabled = false; btn.textContent = "Odeslat návrh"; });
+  }
+
+  applyCompatibility();
+  renderCamList();
+})();
+</script>`;
+
+  pages.push({
+    out: "cctv-navrhar.html",
+    html: page(base, "CCTV návrhář – navrhněte si kamerový systém | Duo alarm",
+      "Naklikejte si vlastní kamerový systém krok za krokem a nechte si zaslat nezávaznou cenovou nabídku na e-mail.",
+      body, { ogImage: "cctv.webp" }),
+  });
+})();
 
 /* ---------------- Write ---------------- */
 pages.forEach(p => {
