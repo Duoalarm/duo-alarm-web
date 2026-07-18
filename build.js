@@ -1432,7 +1432,7 @@ pages.push({
 /* ---------- CCTV NÁVRHÁŘ ---------- */
 (function () {
   const base = "";
-  const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/n9j3y6yotms66e09zrdg6b3oduutajwc";
+  const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/k94fiqs2sblld18sd4oohhpw6wbqoykl";
 
   const CI = {
     bullet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="12" height="6" rx="2"/><path d="M15 9l4-2v10l-4-2"/><path d="M6 15v2a2 2 0 0 0 2 2h1"/></svg>',
@@ -1673,7 +1673,7 @@ pages.push({
 
       <div id="wizThanksBox" style="display:none;text-align:center;padding:1.4rem 0">
         <h2 class="wiz-h">Děkujeme za váš návrh!</h2>
-        <p class="wiz-sub">Nabídku vám zašleme na e-mail nejpozději do 2 pracovních dní.</p>
+        <p class="wiz-sub">Nabídku vám zašleme na e-mail během několika minut.</p>
         <a class="btn btn-gold" href="./">Zpět na úvod ${I.arrow}</a>
       </div>
     </div>
@@ -1977,8 +1977,9 @@ pages.push({
     document.getElementById("wizNext").textContent = n === 5 ? "Odeslat návrh" : "Další";
     if(n === 3) updateRecorder();
     if(n === 4) renderSummary();
+    if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
     var rect = wiz.getBoundingClientRect();
-    window.scrollTo({ top: rect.top + window.scrollY - 110, behavior: "smooth" });
+    window.scrollTo({ top: Math.max(0, rect.top + window.scrollY - 110), behavior: "auto" });
   }
 
   function validateStep(n){
