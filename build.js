@@ -84,7 +84,7 @@ const SERVICES = [
   { slug: "zabezpeceni-jablotron", title: "Zabezpečení Jablotron", icon: "shield", desc: "Instalujeme certifikované systémy Jablotron pro ochranu domů, bytů i firem." },
   { slug: "zabezpeceni-ajax", title: "Zabezpečení Ajax", icon: "radio", desc: "Moderní zabezpečení Ajax s pokročilou ochranou a snadným ovládáním z mobilu." },
   { slug: "chytra-domacnost", title: "Chytrá domácnost", icon: "home", desc: "Ovládejte osvětlení, žaluzie, zabezpečení a další prvky domácnosti z jednoho místa." },
-  { slug: "kamerove-systemy", title: "Kamerové systémy", icon: "camera", desc: "Montáž kamer Dahua, Hanwha a Hikvision pro snadný dohled nad nemovitostí." },
+  { slug: "kamerove-systemy", title: "Kamerové systémy", icon: "camera", desc: "Montáž kamer Dahua, Ajax a Hikvision pro snadný dohled nad nemovitostí." },
   { slug: "dalsi-sluzby", title: "Další služby", icon: "plug", desc: "Slaboproudé elektromontáže, videotelefony a nabíječky pro elektromobily." },
 ];
 
@@ -555,7 +555,7 @@ pages.push({
     <div class="features">
       <div class="feature" data-reveal><div class="ic-gold">${I.bolt}</div><h3>Rozsvítíme vaši nemovitost</h3><p>Profesionální elektroinstalace, která vydrží roky bez starostí. Postaráme se o vše od návrhu až po dokončení.</p></div>
       <div class="feature" data-reveal="80"><div class="ic-gold">${I.checkCircle}</div><h3>Revize a předání</h3><p>Ověříme, otestujeme a provedeme revizi. Elektroinstalace bude připravená k okamžitému používání.</p></div>
-      <div class="feature" data-reveal="160"><div class="ic-gold">${I.shield}</div><h3>Prověřené systémy</h3><p>Instalujeme zabezpečovací systémy Jablotron a Ajax spolu s kamerovými systémy Dahua, Hanwha a Hikvision.</p></div>
+      <div class="feature" data-reveal="160"><div class="ic-gold">${I.shield}</div><h3>Prověřené systémy</h3><p>Instalujeme zabezpečovací systémy Jablotron a Ajax spolu s kamerovými systémy Dahua a Hikvision.</p></div>
       <div class="feature" data-reveal="240"><div class="ic-gold">${I.pin}</div><h3>Kde působíme</h3><p>Dojedeme za vámi kamkoliv v Královéhradeckém a Libereckém kraji.</p></div>
     </div>
   </div>
