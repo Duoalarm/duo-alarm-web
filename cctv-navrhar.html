@@ -406,8 +406,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   var ENV_LABELS = {"interier-suchy":"Suchý interiér","interier-vlhky":"Vlhčí interiér","exterier-kryty":"Exteriér pod přístřeškem","exterier-plny":"Exteriér naplno vystavený"};
   var ENV_BADGES = {"interier-suchy":"IP20","interier-vlhky":"IP54","exterier-kryty":"IP65","exterier-plny":"IP66"};
   var MARZE = 1.15;
-  var LABOR_FIRST_HOUR = 850;
-  var LABOR_NEXT_HOUR = 650;
+  var LABOR_FIRST_HOUR = 950;
+  var LABOR_NEXT_HOUR = 800;
   var LABOR_HOURS_PER_CAMERA = 2;
   var PROGRAMOVANI_FIXNI = 1080;
   var ANGLE_LENS_TIER = {"wide":"wide","medium":"medium","narrow":"motorzoom","motorzoom":"motorzoom"};
@@ -503,6 +503,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if(tb < 1) return Math.max(1, Math.round(tb*1000)) + " GB";
     if(tb < 10) return (Math.round(tb*10)/10).toString().replace(".", ",") + " TB";
     return Math.round(tb) + " TB";
+  }
+  function fmtKc(n){
+    return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   }
   function estimateHdd(){
     var days = 14, hours = 24, bytesPerDay = 0;
@@ -786,7 +789,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         material: Math.round(materialCost()),
         prace_montaz: Math.round(laborCost()),
         programovani: PROGRAMOVANI_FIXNI,
-        celkem: Math.round(totalPrice()),
+        celkem_min: Math.round(totalPrice()),
+        celkem_max: Math.round(totalPrice() * 1.2),
       },
       souhrn: { kamer_celkem: n },
       cas_odeslani: now.toISOString(),
@@ -803,10 +807,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     data.append("rekorder_typ", payload.rekorder.typ);
     data.append("rekorder_kanaly", String(payload.rekorder.kanalu));
     data.append("rekorder_hdd", payload.rekorder.hdd_doporuceni);
-    data.append("cena_material", String(payload.cena.material));
-    data.append("cena_prace", String(payload.cena.prace_montaz));
-    data.append("cena_programovani", String(payload.cena.programovani));
-    data.append("cena_celkem", String(payload.cena.celkem));
+    data.append("cena_material", fmtKc(payload.cena.material));
+    data.append("cena_prace", fmtKc(payload.cena.prace_montaz));
+    data.append("cena_programovani", fmtKc(payload.cena.programovani));
+    data.append("cena_celkem_min", fmtKc(payload.cena.celkem_min));
+    data.append("cena_celkem_max", fmtKc(payload.cena.celkem_max));
     data.append("kamery_prehled", prehled);
     data.append("payload_json", JSON.stringify(payload));
     data.append("cas_odeslani", cas);

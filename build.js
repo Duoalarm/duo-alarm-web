@@ -1497,8 +1497,8 @@ pages.push({
   // 3.6-4 mm = střední úhel) a dražší varifokální/motorzoom řadou (2.7-13.5 mm), která jako jediná umí i úzký
   // záběr — proto úzký úhel cenově odpovídá motorzoomu, ne střednímu úhlu (dřív byl úzký úhel podceněný).
   const MARZE = 1.15;
-  const LABOR_FIRST_HOUR = 850;
-  const LABOR_NEXT_HOUR = 650;
+  const LABOR_FIRST_HOUR = 950;
+  const LABOR_NEXT_HOUR = 800;
   const LABOR_HOURS_PER_CAMERA = 2; // odvozeno z výchozí jednotky: 4 kabelové IP kamery = 8 hodin montáže
   const PROGRAMOVANI_FIXNI = 1080; // 1 hodina programování, fixně za celý projekt
   const ANGLE_LENS_TIER = { wide: "wide", medium: "medium", narrow: "motorzoom", motorzoom: "motorzoom" };
@@ -1827,6 +1827,9 @@ pages.push({
     if(tb < 10) return (Math.round(tb*10)/10).toString().replace(".", ",") + " TB";
     return Math.round(tb) + " TB";
   }
+  function fmtKc(n){
+    return Math.round(n).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, " ");
+  }
   function estimateHdd(){
     var days = 14, hours = 24, bytesPerDay = 0;
     state.cameras.forEach(function(c){
@@ -2109,7 +2112,8 @@ pages.push({
         material: Math.round(materialCost()),
         prace_montaz: Math.round(laborCost()),
         programovani: PROGRAMOVANI_FIXNI,
-        celkem: Math.round(totalPrice()),
+        celkem_min: Math.round(totalPrice()),
+        celkem_max: Math.round(totalPrice() * 1.2),
       },
       souhrn: { kamer_celkem: n },
       cas_odeslani: now.toISOString(),
@@ -2126,10 +2130,11 @@ pages.push({
     data.append("rekorder_typ", payload.rekorder.typ);
     data.append("rekorder_kanaly", String(payload.rekorder.kanalu));
     data.append("rekorder_hdd", payload.rekorder.hdd_doporuceni);
-    data.append("cena_material", String(payload.cena.material));
-    data.append("cena_prace", String(payload.cena.prace_montaz));
-    data.append("cena_programovani", String(payload.cena.programovani));
-    data.append("cena_celkem", String(payload.cena.celkem));
+    data.append("cena_material", fmtKc(payload.cena.material));
+    data.append("cena_prace", fmtKc(payload.cena.prace_montaz));
+    data.append("cena_programovani", fmtKc(payload.cena.programovani));
+    data.append("cena_celkem_min", fmtKc(payload.cena.celkem_min));
+    data.append("cena_celkem_max", fmtKc(payload.cena.celkem_max));
     data.append("kamery_prehled", prehled);
     data.append("payload_json", JSON.stringify(payload));
     data.append("cas_odeslani", cas);
