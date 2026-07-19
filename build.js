@@ -2090,7 +2090,7 @@ pages.push({
     btn.disabled = true; btn.textContent = "Odesílám…";
 
     var now = new Date();
-    var cas = pad2(now.getDate())+"."+pad2(now.getMonth()+1)+"."+String(now.getFullYear()).slice(-2)+" "+pad2(now.getHours())+":"+pad2(now.getMinutes());
+    var cas = pad2(now.getDate())+"."+pad2(now.getMonth()+1)+"."+now.getFullYear()+" "+pad2(now.getHours())+":"+pad2(now.getMinutes());
     var n = totalCameraCount();
     var prehled = state.cameras.map(function(c){
       return "• " + c.umisteni + " (" + c.pocet + "×): " + camSummaryLine(c);

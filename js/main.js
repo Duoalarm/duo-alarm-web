@@ -201,7 +201,7 @@
       data.append("stranka", location.href);
       var now = new Date();
       var pad2 = function (n) { return String(n).padStart(2, "0"); };
-      var datum = pad2(now.getDate()) + "." + pad2(now.getMonth() + 1) + "." + String(now.getFullYear()).slice(-2)
+      var datum = pad2(now.getDate()) + "." + pad2(now.getMonth() + 1) + "." + now.getFullYear()
         + " " + pad2(now.getHours()) + ":" + pad2(now.getMinutes());
       data.append("datum", datum);
 
