@@ -582,7 +582,7 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 .pick-card[aria-pressed="true"] { background: rgba(245,183,0,0.09); border-color: var(--gold); }
 .pick-card .ic-gold { width: 44px; height: 44px; }
 .pick-card .ic-gold svg { width: 22px; height: 22px; }
-.pick-photo { width: 100%; height: 128px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 0.2rem; background: var(--bg-2); }
+.pick-photo { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 0.2rem; background: var(--bg-2); }
 .pick-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pick-card b { font-family: var(--font-head); font-weight: 700; font-size: 0.98rem; color: var(--text); }
 .pick-card p { font-size: 0.84rem; line-height: 1.45; color: var(--muted); margin: 0; }
