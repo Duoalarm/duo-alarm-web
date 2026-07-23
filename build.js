@@ -1031,7 +1031,7 @@ pages.push({
   <div class="container">
     <div class="split">
       <div class="split-media" data-reveal>
-        <img src="assets/img/o-nas-car.webp" alt="Technika a vůz Duo alarm" width="1200" height="901" loading="lazy">
+        <img src="assets/img/o-nas-tym.webp" alt="Tým Duo alarm" width="1600" height="942" loading="lazy">
         <span class="scan"></span>
       </div>
       <div class="split-body" data-reveal="100">
@@ -1071,7 +1071,7 @@ pages.push({
     </div>
   </div>
 </section>`
-  , { ogImage: "o-nas-car.webp" })
+  , { ogImage: "o-nas-tym.webp" })
 });
 
 /* ---------- CERTIFIKACE ---------- */
