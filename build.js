@@ -1546,8 +1546,9 @@ pages.push({
   const DAHUA_WIFI_DOME_PRICES = { 2: 1484, 4: 1729 };
   // Hikvision: rozlišení a ohnisko jsou v názvu produktu (např. "DS-2CD2046G2H-IU - (2.8mm) 4 Mpix"). Ceny jsou
   // nejlevnější reálné SKU pro danou kombinaci typ×rozlišení×ohnisko z aktuálního ceníku materiálu. Hikvision
-  // nemá v nabídce 5 Mpx ani samostatnou turret (eyeball) řadu IP kamer — 5 Mpx proto používá cenu nejbližší
-  // reálné varianty (6 Mpx) a turret přebírá cenu bullet (stejně jako u Ajax je cena bullet/turret/dome shodná).
+  // nemá v nabídce 5 Mpx ani samostatnou turret (eyeball) řadu IP kamer — obojí proto návrhář u Hikvision
+  // vůbec nenabídne (viz BRAND_AVAIL). Řádek 5 Mpx a alias turret níže zůstávají jen jako záchranná síť pro
+  // kamery uložené starší verzí návrháře: 5 Mpx drží cenu nejbližší reálné varianty (6 Mpx), turret cenu bullet.
   const HIKVISION_CAM_PRICES = {
     bullet: {
       2: { wide: 1666, medium: 1189, motorzoom: 2644 },
@@ -1635,6 +1636,7 @@ pages.push({
           <div class="calc-field">
             <label class="calc-label">Značka</label>
             ${pickGrid("camZnacka", BRANDS, "doporucit", true)}
+            <p class="calc-hint" data-compat-note style="display:none"></p>
           </div>
           <div class="calc-field">
             <label class="calc-label">Rozlišení</label>
@@ -1805,36 +1807,75 @@ pages.push({
     if(!el) return;
     el.querySelectorAll("button").forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-val")===val ? "true":"false"); });
   }
+  // Co která značka reálně má v katalogu. Kombinace, která tu není, se v návrháři vůbec nenabídne —
+  // dřív šla vybrat a v nabídce se pak tiše nahradila nejbližším existujícím produktem (např. Hikvision
+  // turret se počítal jako bullet a 5 Mpx jako 6 Mpx), takže zákazník dostal nabídku na neexistující kus.
+  var BRAND_AVAIL = {
+    ajax:      { typ: ["bullet","turret","dome"],       rozliseni: ["5","8"],         barva: ["bila","cerna"], prenos: ["wifi"] },
+    dahua:     { typ: ["bullet","turret","dome","ptz"], rozliseni: ["2","4","5","8"], barva: ["bila"],         prenos: ["kabel","wifi"] },
+    hikvision: { typ: ["bullet","dome","ptz"],          rozliseni: ["2","4","8"],     barva: ["bila","cerna"], prenos: ["kabel","wifi"] }
+  };
+  var COMPAT_GROUP = { typ: "camTyp", rozliseni: "camRozliseni", barva: "camBarva", prenos: "camPrenos" };
+  var COMPAT_LABEL = { typ: "typ", rozliseni: "rozlišení", barva: "barvu", prenos: "přenos" };
+  var TYP_FALLBACK = { turret: ["dome","bullet"], ptz: ["dome","bullet"], bullet: ["turret","dome"], dome: ["turret","bullet"] };
+
+  function brandAllows(znacka, field, val){
+    var a = BRAND_AVAIL[znacka];
+    if(!a || !a[field] || val == null) return true; // "doporucit" = značku vybereme my, bez omezení
+    return a[field].indexOf(val) >= 0;
+  }
+  function nearestAllowed(znacka, field, val){
+    var opts = BRAND_AVAIL[znacka][field];
+    if(field === "rozliseni"){
+      var want = parseInt(val, 10);
+      return opts.slice().sort(function(x, y){ return Math.abs(x - want) - Math.abs(y - want); })[0];
+    }
+    var pref = (field === "typ" ? TYP_FALLBACK[val] : null) || [];
+    for(var i = 0; i < pref.length; i++){ if(opts.indexOf(pref[i]) >= 0) return pref[i]; }
+    return opts[0];
+  }
+  function optLabel(group, val){
+    var b = wiz.querySelector('[data-pick="'+group+'"] [data-val="'+val+'"], [data-seg="'+group+'"] [data-val="'+val+'"]');
+    if(!b) return String(val);
+    var strong = b.querySelector("b");
+    var t = strong ? strong.textContent : (b.childNodes[0] ? b.childNodes[0].textContent : b.textContent);
+    return String(t).trim();
+  }
+  function showCompatNote(changes){
+    var el = wiz.querySelector("[data-compat-note]");
+    if(!el) return;
+    if(!changes.length){ el.style.display = "none"; el.textContent = ""; return; }
+    el.textContent = changes.join(" ");
+    el.style.display = "";
+  }
   function applyCompatibility(){
     var znacka = groupVal("camZnacka");
-    var typ = groupVal("camTyp");
-    var ptzBtn = wiz.querySelector('[data-pick="camTyp"] [data-val="ptz"]');
-    var ajaxBtn = wiz.querySelector('[data-pick="camZnacka"] [data-val="ajax"]');
-    if(ptzBtn) ptzBtn.disabled = (znacka === "ajax");
-    if(ajaxBtn) ajaxBtn.disabled = (typ === "ptz");
-    var cernaBtn = wiz.querySelector('[data-seg="camBarva"] [data-val="cerna"]');
-    if(cernaBtn) cernaBtn.disabled = (znacka === "dahua");
-    ["2","4"].forEach(function(v){
-      var btn = wiz.querySelector('[data-seg="camRozliseni"] [data-val="'+v+'"]');
-      if(btn) btn.disabled = (znacka === "ajax");
+    Object.keys(COMPAT_GROUP).forEach(function(field){
+      var g = COMPAT_GROUP[field];
+      var box = wiz.querySelector('[data-pick="'+g+'"], [data-seg="'+g+'"]');
+      if(!box) return;
+      box.querySelectorAll("button").forEach(function(b){
+        var off = !brandAllows(znacka, field, b.getAttribute("data-val"));
+        b.disabled = off;
+        if(off) b.setAttribute("title", (BRAND_LABELS[znacka] || "Vybraná značka") + " tuto možnost v nabídce nemá.");
+        else b.removeAttribute("title");
+      });
     });
-    var kabelBtn = wiz.querySelector('[data-pick="camPrenos"] [data-val="kabel"]');
-    if(kabelBtn) kabelBtn.disabled = (znacka === "ajax");
   }
 
   function onGroupChange(group, val){
-    if(group === "camZnacka" && val === "ajax"){
-      setGroupVal("camPrenos", "wifi");
-      if(groupVal("camTyp") === "ptz") setGroupVal("camTyp", "dome");
-      var rozl = groupVal("camRozliseni");
-      if(rozl === "2" || rozl === "4") setGroupVal("camRozliseni", "5");
+    var changes = [];
+    if(group === "camZnacka"){
+      Object.keys(COMPAT_GROUP).forEach(function(field){
+        var g = COMPAT_GROUP[field], cur = groupVal(g);
+        if(cur != null && !brandAllows(val, field, cur)){
+          var next = nearestAllowed(val, field, cur);
+          setGroupVal(g, next);
+          changes.push(BRAND_LABELS[val] + " nemá " + COMPAT_LABEL[field] + " „" + optLabel(g, cur) + "“ – nastaveno „" + optLabel(g, next) + "“.");
+        }
+      });
     }
-    if(group === "camZnacka" && val === "dahua"){
-      if(groupVal("camBarva") === "cerna") setGroupVal("camBarva", "bila");
-    }
-    if(group === "camTyp" && val === "ptz"){
-      if(groupVal("camZnacka") === "ajax") setGroupVal("camZnacka", "doporucit");
-    }
+    showCompatNote(group === "camZnacka" ? changes : []);
     applyCompatibility();
   }
 
@@ -1983,6 +2024,8 @@ pages.push({
       setGroupVal("camNocni", c.nocni ? "ano":"ne");
       setGroupVal("camPrenos", c.prenos);
       document.getElementById("camPocet").value = c.pocet;
+      showCompatNote([]);
+      applyCompatibility();
       state.editIndex = i;
       document.getElementById("camAddBtn").textContent = "Uložit úpravu";
       document.getElementById("camCancelBtn").style.display = "inline-flex";
@@ -2001,6 +2044,8 @@ pages.push({
     setGroupVal("camProstredi", "exterier-kryty");
     setGroupVal("camNocni", "ano");
     setGroupVal("camPrenos", "kabel");
+    showCompatNote([]);
+    applyCompatibility();
     state.editIndex = -1;
     document.getElementById("camAddBtn").textContent = "Přidat kameru";
     document.getElementById("camCancelBtn").style.display = "none";
