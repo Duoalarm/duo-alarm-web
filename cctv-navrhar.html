@@ -660,6 +660,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     document.getElementById("camAddBtn").textContent = "Přidat kameru";
     document.getElementById("camCancelBtn").style.display = "none";
   }
+  // Formulář je "rozpracovaný", pokud se liší od výchozího stavu po resetCamForm(). Bez této kontroly
+  // se neuložené volby (např. přepnutá značka) při kliknutí na "Další" tiše zahodily.
+  var CAM_FORM_DEFAULTS = { camTyp: "dome", camZnacka: "doporucit", camRozliseni: "4", camBarva: "bila", camUhel: "medium", camProstredi: "exterier-kryty", camNocni: "ano", camPrenos: "kabel" };
+  function camFormDirty(){
+    if(document.getElementById("camPos").value.trim() !== "") return true;
+    if((document.getElementById("camPocet").value || "1") !== "1") return true;
+    for(var k in CAM_FORM_DEFAULTS){ if(groupVal(k) !== CAM_FORM_DEFAULTS[k]) return true; }
+    return false;
+  }
   document.getElementById("camCancelBtn").addEventListener("click", resetCamForm);
   document.getElementById("camAddBtn").addEventListener("click", function(){
     var cam = {
@@ -732,6 +741,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
     if(n === 2){
       if(state.cameras.length === 0){ showErr(2, "Přidejte prosím alespoň jednu kameru."); return false; }
+      if(state.editIndex >= 0){
+        showErr(2, "Máte rozpracovanou úpravu kamery. Uložte ji tlačítkem „Uložit úpravu“, nebo ji zrušte tlačítkem „Zrušit úpravu“.");
+        document.getElementById("camForm").scrollIntoView({behavior:"smooth", block:"start"});
+        return false;
+      }
+      if(camFormDirty()){
+        document.getElementById("camCancelBtn").style.display = "inline-flex";
+        showErr(2, "Máte ve formuláři rozpracovanou kameru, která zatím není v seznamu. Přidejte ji tlačítkem „Přidat kameru“, nebo změny zahoďte tlačítkem „Zrušit úpravu“.");
+        document.getElementById("camForm").scrollIntoView({behavior:"smooth", block:"start"});
+        return false;
+      }
       showErr(2, null); return true;
     }
     if(n === 5){
