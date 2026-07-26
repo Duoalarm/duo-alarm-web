@@ -406,17 +406,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   var ENV_LABELS = {"interier-suchy":"Suchý interiér","interier-vlhky":"Vlhčí interiér","exterier-kryty":"Exteriér pod přístřeškem","exterier-plny":"Exteriér naplno vystavený"};
   var ENV_BADGES = {"interier-suchy":"IP20","interier-vlhky":"IP54","exterier-kryty":"IP65","exterier-plny":"IP66"};
   var MARZE = 1.15;
+  var DPH = 1.21;
   var LABOR_FIRST_HOUR = 950;
   var LABOR_NEXT_HOUR = 800;
   var LABOR_HOURS_PER_CAMERA = 2;
   var PROGRAMOVANI_FIXNI = 1080;
   var ANGLE_LENS_TIER = {"wide":"wide","medium":"medium","narrow":"motorzoom","motorzoom":"motorzoom"};
   var DAHUA_PTZ_PRICE = 2938;
+  var HIKVISION_PTZ_PRICE = 3045;
   var HDD_PRICES = {"2":2043,"4":3135,"6":4180,"8":5890,"10":7600,"12":13395};
   var AJAX_CAM_PRICES = {"bullet":{"5":{"wide":2907,"medium":2907,"motorzoom":6762},"8":{"wide":3875,"medium":3875,"motorzoom":9363}},"turret":{"5":{"wide":2907,"medium":2907,"motorzoom":6762},"8":{"wide":3875,"medium":3875,"motorzoom":9363}},"dome":{"5":{"wide":2907,"medium":2907,"motorzoom":6762},"8":{"wide":3875,"medium":3875,"motorzoom":9363}}};
   var DAHUA_CAM_PRICES = {"bullet":{"2":{"wide":1699,"medium":2601,"motorzoom":4587},"4":{"wide":1668,"medium":2938,"motorzoom":4820},"5":{"wide":3504,"medium":6132,"motorzoom":9461},"8":{"wide":3641,"medium":3932,"motorzoom":5585}},"turret":{"2":{"wide":1699,"medium":2973,"motorzoom":4587},"4":{"wide":2066,"medium":3616,"motorzoom":5578},"5":{"wide":4927,"medium":8622,"motorzoom":13303},"8":{"wide":3672,"medium":5585,"motorzoom":5585}},"dome":{"2":{"wide":1989,"medium":3169,"motorzoom":3521},"4":{"wide":2525,"medium":4338,"motorzoom":4820},"5":{"wide":4927,"medium":4995,"motorzoom":4995},"8":{"wide":5707,"medium":5707,"motorzoom":5707}}};
+  var HIKVISION_CAM_PRICES = {"bullet":{"2":{"wide":1666,"medium":1189,"motorzoom":2644},"4":{"wide":2899,"medium":1873,"motorzoom":3991},"5":{"wide":4363,"medium":2368,"motorzoom":6568},"8":{"wide":3580,"medium":3718,"motorzoom":5152}},"dome":{"2":{"wide":1784,"medium":1550,"motorzoom":2644},"4":{"wide":2052,"medium":2010,"motorzoom":4076},"5":{"wide":2465,"medium":2465,"motorzoom":7882},"8":{"wide":2813,"medium":2754,"motorzoom":4930}},"turret":{"2":{"wide":1666,"medium":1189,"motorzoom":2644},"4":{"wide":2899,"medium":1873,"motorzoom":3991},"5":{"wide":4363,"medium":2368,"motorzoom":6568},"8":{"wide":3580,"medium":3718,"motorzoom":5152}}};
   var DAHUA_WIFI_DOME_PRICES = {"2":1484,"4":1729};
-  var NVR_PRICES = {"dahua":{"4":2647,"8":2770,"16":4759,"32":6977},"ajax":{"8":4022,"16":6196,"32":12291}};
+  var NVR_PRICES = {"dahua":{"4":2647,"8":2770,"16":4759,"32":6977},"ajax":{"8":4022,"16":6196,"32":12291},"hikvision":{"4":1691,"8":2096,"16":3997,"32":7261}};
 
   var state = { step: 1, cameras: [], editIndex: -1, camIdSeq: 1, lastChangedId: -1, maxStep: 1 };
   var camToastTimer = null;
@@ -517,12 +520,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   function rekTypLabel(v){ return v==="nvr" ? "NVR (IP)" : "Bez rekordéru"; }
 
   function cameraPurchasePrice(c){
-    if(c.typ === "ptz") return DAHUA_PTZ_PRICE;
+    if(c.typ === "ptz") return c.znacka === "hikvision" ? HIKVISION_PTZ_PRICE : DAHUA_PTZ_PRICE;
     var lensTier = ANGLE_LENS_TIER[c.uhel] || "wide";
     if(c.znacka === "ajax"){
       var mpx = c.rozliseni >= 8 ? 8 : 5;
       var aTable = AJAX_CAM_PRICES[c.typ] && AJAX_CAM_PRICES[c.typ][mpx];
       if(aTable) return aTable[lensTier];
+    }
+    if(c.znacka === "hikvision"){
+      var hTable = HIKVISION_CAM_PRICES[c.typ] && HIKVISION_CAM_PRICES[c.typ][c.rozliseni];
+      if(hTable) return hTable[lensTier];
     }
     if(c.znacka === "dahua" && c.typ === "dome" && c.prenos === "wifi" && lensTier === "wide" && DAHUA_WIFI_DOME_PRICES[c.rozliseni] != null){
       return DAHUA_WIFI_DOME_PRICES[c.rozliseni];
@@ -530,8 +537,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     var dTable = DAHUA_CAM_PRICES[c.typ] && DAHUA_CAM_PRICES[c.typ][c.rozliseni];
     return dTable ? dTable[lensTier] : 0;
   }
-  function cameraSellPrice(c){ return cameraPurchasePrice(c) * MARZE; }
-  function recorderBrand(){ return state.cameras.some(function(c){ return c.znacka === "ajax"; }) ? "ajax" : "dahua"; }
+  function cameraSellPrice(c){ return cameraPurchasePrice(c) * MARZE * DPH; }
+  function recorderBrand(){
+    if(state.cameras.some(function(c){ return c.znacka === "ajax"; })) return "ajax";
+    if(state.cameras.some(function(c){ return c.znacka === "hikvision"; })) return "hikvision";
+    return "dahua";
+  }
   function recorderChannels(){
     var tier = suggestChannels(totalCameraCount());
     if(recorderBrand() === "ajax" && tier === 4) tier = 8; // Ajax nemá 4kanálový NVR
@@ -541,14 +552,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     var table = NVR_PRICES[recorderBrand()];
     return (table && table[recorderChannels()]) || 0;
   }
-  function recorderSellPrice(){ return recorderPurchasePrice() * MARZE; }
+  function recorderSellPrice(){ return recorderPurchasePrice() * MARZE * DPH; }
   function hddPurchasePrice(tb){
     var tiers = Object.keys(HDD_PRICES).map(Number).sort(function(a,b){ return a-b; });
     for(var i=0;i<tiers.length;i++){ if(tiers[i] >= tb) return HDD_PRICES[tiers[i]]; }
     var maxTier = tiers[tiers.length-1];
     return Math.ceil(tb / maxTier) * HDD_PRICES[maxTier];
   }
-  function hddSellPrice(){ return hddPurchasePrice(estimateHdd()) * MARZE; }
+  function hddSellPrice(){ return hddPurchasePrice(estimateHdd()) * MARZE * DPH; }
   function laborCost(){
     var n = totalCameraCount();
     if(n === 0) return 0;

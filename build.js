@@ -1497,6 +1497,7 @@ pages.push({
   // 3.6-4 mm = střední úhel) a dražší varifokální/motorzoom řadou (2.7-13.5 mm), která jako jediná umí i úzký
   // záběr — proto úzký úhel cenově odpovídá motorzoomu, ne střednímu úhlu (dřív byl úzký úhel podceněný).
   const MARZE = 1.15;
+  const DPH = 1.21; // marže i DPH se počítají jen na materiál (kamery, NVR, disk) — práce a programování už DPH zahrnují.
   const LABOR_FIRST_HOUR = 950;
   const LABOR_NEXT_HOUR = 800;
   const LABOR_HOURS_PER_CAMERA = 2; // odvozeno z výchozí jednotky: 4 kabelové IP kamery = 8 hodin montáže
@@ -1543,9 +1544,30 @@ pages.push({
   // proto výše počítáme s dražším skutečně PoE SKU (IPC-HDBW224*/244*F-AS); tahle levnější cena platí jen při
   // volbě WiFi přenosu u Dahua.
   const DAHUA_WIFI_DOME_PRICES = { 2: 1484, 4: 1729 };
+  // Hikvision: rozlišení a ohnisko jsou v názvu produktu (např. "DS-2CD2046G2H-IU - (2.8mm) 4 Mpix"). Ceny jsou
+  // nejlevnější reálné SKU pro danou kombinaci typ×rozlišení×ohnisko z aktuálního ceníku materiálu. Hikvision
+  // nemá v nabídce 5 Mpx ani samostatnou turret (eyeball) řadu IP kamer — 5 Mpx proto používá cenu nejbližší
+  // reálné varianty (6 Mpx) a turret přebírá cenu bullet (stejně jako u Ajax je cena bullet/turret/dome shodná).
+  const HIKVISION_CAM_PRICES = {
+    bullet: {
+      2: { wide: 1666, medium: 1189, motorzoom: 2644 },
+      4: { wide: 2899, medium: 1873, motorzoom: 3991 },
+      5: { wide: 4363, medium: 2368, motorzoom: 6568 },
+      8: { wide: 3580, medium: 3718, motorzoom: 5152 },
+    },
+    dome: {
+      2: { wide: 1784, medium: 1550, motorzoom: 2644 },
+      4: { wide: 2052, medium: 2010, motorzoom: 4076 },
+      5: { wide: 2465, medium: 2465, motorzoom: 7882 },
+      8: { wide: 2813, medium: 2754, motorzoom: 4930 },
+    },
+  };
+  HIKVISION_CAM_PRICES.turret = HIKVISION_CAM_PRICES.bullet;
+  const HIKVISION_PTZ_PRICE = 3045; // nejlevnější reálná Hikvision mini-PT (DS-2DE2C400MWG-E)
   const NVR_PRICES = {
     dahua: { 4: 2647, 8: 2770, 16: 4759, 32: 6977 },
     ajax: { 8: 4022, 16: 6196, 32: 12291 },
+    hikvision: { 4: 1691, 8: 2096, 16: 3997, 32: 7261 },
   };
 
   function pickGrid(name, items, defaultKey, small) {
@@ -1729,15 +1751,18 @@ pages.push({
   var ENV_LABELS = ${JSON.stringify(Object.fromEntries(ENV_EXPOSURE.map(e => [e.key, e.label])))};
   var ENV_BADGES = ${JSON.stringify(Object.fromEntries(ENV_EXPOSURE.map(e => [e.key, e.badges[0]])))};
   var MARZE = ${JSON.stringify(MARZE)};
+  var DPH = ${JSON.stringify(DPH)};
   var LABOR_FIRST_HOUR = ${JSON.stringify(LABOR_FIRST_HOUR)};
   var LABOR_NEXT_HOUR = ${JSON.stringify(LABOR_NEXT_HOUR)};
   var LABOR_HOURS_PER_CAMERA = ${JSON.stringify(LABOR_HOURS_PER_CAMERA)};
   var PROGRAMOVANI_FIXNI = ${JSON.stringify(PROGRAMOVANI_FIXNI)};
   var ANGLE_LENS_TIER = ${JSON.stringify(ANGLE_LENS_TIER)};
   var DAHUA_PTZ_PRICE = ${JSON.stringify(DAHUA_PTZ_PRICE)};
+  var HIKVISION_PTZ_PRICE = ${JSON.stringify(HIKVISION_PTZ_PRICE)};
   var HDD_PRICES = ${JSON.stringify(HDD_PRICES)};
   var AJAX_CAM_PRICES = ${JSON.stringify(AJAX_CAM_PRICES)};
   var DAHUA_CAM_PRICES = ${JSON.stringify(DAHUA_CAM_PRICES)};
+  var HIKVISION_CAM_PRICES = ${JSON.stringify(HIKVISION_CAM_PRICES)};
   var DAHUA_WIFI_DOME_PRICES = ${JSON.stringify(DAHUA_WIFI_DOME_PRICES)};
   var NVR_PRICES = ${JSON.stringify(NVR_PRICES)};
 
@@ -1840,12 +1865,16 @@ pages.push({
   function rekTypLabel(v){ return v==="nvr" ? "NVR (IP)" : "Bez rekordéru"; }
 
   function cameraPurchasePrice(c){
-    if(c.typ === "ptz") return DAHUA_PTZ_PRICE;
+    if(c.typ === "ptz") return c.znacka === "hikvision" ? HIKVISION_PTZ_PRICE : DAHUA_PTZ_PRICE;
     var lensTier = ANGLE_LENS_TIER[c.uhel] || "wide";
     if(c.znacka === "ajax"){
       var mpx = c.rozliseni >= 8 ? 8 : 5;
       var aTable = AJAX_CAM_PRICES[c.typ] && AJAX_CAM_PRICES[c.typ][mpx];
       if(aTable) return aTable[lensTier];
+    }
+    if(c.znacka === "hikvision"){
+      var hTable = HIKVISION_CAM_PRICES[c.typ] && HIKVISION_CAM_PRICES[c.typ][c.rozliseni];
+      if(hTable) return hTable[lensTier];
     }
     if(c.znacka === "dahua" && c.typ === "dome" && c.prenos === "wifi" && lensTier === "wide" && DAHUA_WIFI_DOME_PRICES[c.rozliseni] != null){
       return DAHUA_WIFI_DOME_PRICES[c.rozliseni];
@@ -1853,8 +1882,12 @@ pages.push({
     var dTable = DAHUA_CAM_PRICES[c.typ] && DAHUA_CAM_PRICES[c.typ][c.rozliseni];
     return dTable ? dTable[lensTier] : 0;
   }
-  function cameraSellPrice(c){ return cameraPurchasePrice(c) * MARZE; }
-  function recorderBrand(){ return state.cameras.some(function(c){ return c.znacka === "ajax"; }) ? "ajax" : "dahua"; }
+  function cameraSellPrice(c){ return cameraPurchasePrice(c) * MARZE * DPH; }
+  function recorderBrand(){
+    if(state.cameras.some(function(c){ return c.znacka === "ajax"; })) return "ajax";
+    if(state.cameras.some(function(c){ return c.znacka === "hikvision"; })) return "hikvision";
+    return "dahua";
+  }
   function recorderChannels(){
     var tier = suggestChannels(totalCameraCount());
     if(recorderBrand() === "ajax" && tier === 4) tier = 8; // Ajax nemá 4kanálový NVR
@@ -1864,14 +1897,14 @@ pages.push({
     var table = NVR_PRICES[recorderBrand()];
     return (table && table[recorderChannels()]) || 0;
   }
-  function recorderSellPrice(){ return recorderPurchasePrice() * MARZE; }
+  function recorderSellPrice(){ return recorderPurchasePrice() * MARZE * DPH; }
   function hddPurchasePrice(tb){
     var tiers = Object.keys(HDD_PRICES).map(Number).sort(function(a,b){ return a-b; });
     for(var i=0;i<tiers.length;i++){ if(tiers[i] >= tb) return HDD_PRICES[tiers[i]]; }
     var maxTier = tiers[tiers.length-1];
     return Math.ceil(tb / maxTier) * HDD_PRICES[maxTier];
   }
-  function hddSellPrice(){ return hddPurchasePrice(estimateHdd()) * MARZE; }
+  function hddSellPrice(){ return hddPurchasePrice(estimateHdd()) * MARZE * DPH; }
   function laborCost(){
     var n = totalCameraCount();
     if(n === 0) return 0;
