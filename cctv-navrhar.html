@@ -564,9 +564,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   function rekTypLabel(v){ return v==="nvr" ? "NVR (IP)" : "Bez rekordéru"; }
   // Do nabídky patří i to, čím se kabelové kamery napájejí — jinak si zákazník přečte cenu za sestavu,
   // která by po zapojení nefungovala.
-  function rekorderPopis(){
+  // Počet kanálů se přidá jen pro souhrn na webu. Do odesílaného payloadu patří bez něj, protože
+  // šablona nabídky i interní e-mail skládají větu jako "{{rekorder_typ}}, {{rekorder_kanaly}} kanálů"
+  // a kanály by se jinak vypsaly dvakrát.
+  function rekorderPopis(sKanaly){
     if(groupVal("rekTyp") !== "nvr") return rekTypLabel("bez");
-    var s = rekTypLabel("nvr") + (needsPoe() ? " s PoE" : "") + ", " + recorderChannels() + " kanálů";
+    var s = rekTypLabel("nvr") + (needsPoe() ? " s PoE" : "");
+    if(sKanaly) s += ", " + recorderChannels() + " kanálů";
     var sw = poeSwitchCount();
     if(sw > 0) s += " + " + sw + "× PoE switch (" + POE_SWITCH_PORTS + " portů)";
     return s;
@@ -774,7 +778,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     html += '<div class="wiz-sum-row"><span>Typ objektu</span><b>' + (OBJ_LABELS[groupVal("objTyp")]||"–") + '</b></div>';
     html += '<div class="wiz-sum-row"><span>Prostředí</span><b>' + (prostr==="interier"?"Interiér":prostr==="exterier"?"Exteriér":"Kombinace") + '</b></div>';
     html += '<div class="wiz-sum-row"><span>Počet kamer</span><b>' + n + '</b></div>';
-    html += '<div class="wiz-sum-row"><span>Rekordér</span><b>' + rekorderPopis() + '</b></div>';
+    html += '<div class="wiz-sum-row"><span>Rekordér</span><b>' + rekorderPopis(true) + '</b></div>';
     html += '<div class="wiz-sum-row"><span>Orientační úložiště</span><b>' + fmtTb(estimateHdd()) + '</b></div>';
     html += '<div class="cam-list">' + state.cameras.map(function(c){
       return '<div class="cam-item">' +
@@ -888,7 +892,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       kamery: state.cameras.map(function(c){
         return { umisteni: c.umisteni, typ: CAM_LABELS[c.typ], znacka: BRAND_LABELS[c.znacka], barva: BARVA_LABELS[c.barva], rozliseni: c.rozliseni + " Mpx", zorny_uhel: ANGLE_LABELS[c.uhel], prostredi: ENV_LABELS[c.prostredi], ip_rating: ENV_BADGES[c.prostredi], nocni_videni: c.nocni, prenos_dat: TRANSFER_LABELS[c.prenos], pocet: c.pocet, cena_ks: Math.round(cameraSellPrice(c)) };
       }),
-      rekorder: { typ: rekorderPopis(), kanalu: groupVal("rekTyp")==="nvr" ? recorderChannels() : 0, poe: needsPoe(), poe_switche: poeSwitchCount(), hdd_doporuceni: fmtTb(estimateHdd()), cena: groupVal("rekTyp")==="nvr" ? Math.round(recorderSellPrice() + poeSwitchSellPrice()) : 0 },
+      rekorder: { typ: rekorderPopis(false), kanalu: groupVal("rekTyp")==="nvr" ? recorderChannels() : 0, poe: needsPoe(), poe_switche: poeSwitchCount(), hdd_doporuceni: fmtTb(estimateHdd()), cena: groupVal("rekTyp")==="nvr" ? Math.round(recorderSellPrice() + poeSwitchSellPrice()) : 0 },
       cena: {
         material: Math.round(materialCost()),
         prace_montaz: Math.round(laborCost()),
