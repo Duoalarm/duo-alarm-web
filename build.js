@@ -1565,10 +1565,27 @@ pages.push({
   };
   HIKVISION_CAM_PRICES.turret = HIKVISION_CAM_PRICES.bullet;
   const HIKVISION_PTZ_PRICE = 3045; // nejlevnější reálná Hikvision mini-PT (DS-2DE2C400MWG-E)
+  // Rekordéry bez PoE portů — použijí se jen když žádná kamera nejede po kabelu (typicky WiFi / Ajax).
+  // Dahua 8CH dřív ukazovalo na XVR5108HS-I3/T, což je hybridní rekordér pro analogové kamery, ne IP NVR.
   const NVR_PRICES = {
-    dahua: { 4: 2647, 8: 2770, 16: 4759, 32: 6977 },
+    dahua: { 4: 2647, 8: 2341, 16: 4759, 32: 6977 },        // NVR4104HS-4KS3 / NVR2108-4KS3 / NVR4216-EI / NVR4232-EI
     ajax: { 8: 4022, 16: 6196, 32: 12291 },
-    hikvision: { 4: 1691, 8: 2096, 16: 3997, 32: 7261 },
+    hikvision: { 4: 1691, 8: 2096, 16: 3997, 32: 7261 },    // DS-7104NI-Q1(D) / DS-7108NI-Q1(D) / DS-7616NXI-K1(D) / DS-7632NXI-K2(D)
+  };
+  // PoE kamera bere napájení ze síťového kabelu, takže jí ho něco musí dodat. Jakmile je v návrhu aspoň
+  // jedna kamera "Kabelem (PoE)", počítá se rekordér s PoE porty — jinak by nabídka neobsahovala nic,
+  // z čeho kamery poběží. Ceny = nejlevnější reálné SKU pro daný počet kanálů z ceníku VARNET.
+  const NVR_POE_PRICES = {
+    dahua: { 4: 3320, 8: 4406, 16: 8890, 32: 18712 },       // NVR2104HS-P-4KS3 / NVR2108-8P-4KS3 / NVR4216-16P-4KS3 / NVR5232-16P-EI2
+    hikvision: { 4: 2886, 8: 4117, 16: 10333, 32: 22723 },  // DS-7104NI-Q1/4P(D) / DS-7108NI-Q1/8P(D) / DS-7616NXI-K2/16P(D) / DS-7732NXI-I4/16P/S(E)
+  };
+  // Kolik PoE portů rekordér daného stupně reálně má. 32kanálové modely mají v obou značkách jen 16 PoE
+  // portů, takže nad 16 kabelových kamer je potřeba k tomu ještě switch.
+  const NVR_POE_PORTS = { 4: 4, 8: 8, 16: 16, 32: 16 };
+  const POE_SWITCH_PORTS = 16;
+  const POE_SWITCH_PRICES = {
+    dahua: 3443,      // CS4218-16ET-135, 16x PoE, 135 W
+    hikvision: 3400,  // DS-3E1318P-EI/M, 16x PoE, 130 W
   };
 
   function pickGrid(name, items, defaultKey, small) {
@@ -1767,6 +1784,10 @@ pages.push({
   var HIKVISION_CAM_PRICES = ${JSON.stringify(HIKVISION_CAM_PRICES)};
   var DAHUA_WIFI_DOME_PRICES = ${JSON.stringify(DAHUA_WIFI_DOME_PRICES)};
   var NVR_PRICES = ${JSON.stringify(NVR_PRICES)};
+  var NVR_POE_PRICES = ${JSON.stringify(NVR_POE_PRICES)};
+  var NVR_POE_PORTS = ${JSON.stringify(NVR_POE_PORTS)};
+  var POE_SWITCH_PORTS = ${JSON.stringify(POE_SWITCH_PORTS)};
+  var POE_SWITCH_PRICES = ${JSON.stringify(POE_SWITCH_PRICES)};
 
   var state = { step: 1, cameras: [], editIndex: -1, camIdSeq: 1, lastChangedId: -1, maxStep: 1 };
   var camToastTimer = null;
@@ -1904,6 +1925,15 @@ pages.push({
     return bytesPerDay * days / 1e12;
   }
   function rekTypLabel(v){ return v==="nvr" ? "NVR (IP)" : "Bez rekordéru"; }
+  // Do nabídky patří i to, čím se kabelové kamery napájejí — jinak si zákazník přečte cenu za sestavu,
+  // která by po zapojení nefungovala.
+  function rekorderPopis(){
+    if(groupVal("rekTyp") !== "nvr") return rekTypLabel("bez");
+    var s = rekTypLabel("nvr") + (needsPoe() ? " s PoE" : "") + ", " + recorderChannels() + " kanálů";
+    var sw = poeSwitchCount();
+    if(sw > 0) s += " + " + sw + "× PoE switch (" + POE_SWITCH_PORTS + " portů)";
+    return s;
+  }
 
   function cameraPurchasePrice(c){
     if(c.typ === "ptz") return c.znacka === "hikvision" ? HIKVISION_PTZ_PRICE : DAHUA_PTZ_PRICE;
@@ -1934,11 +1964,27 @@ pages.push({
     if(recorderBrand() === "ajax" && tier === 4) tier = 8; // Ajax nemá 4kanálový NVR
     return tier;
   }
+  function poeCameraCount(){
+    return state.cameras.reduce(function(s,c){ return s + (c.prenos === "kabel" ? c.pocet : 0); }, 0);
+  }
+  function needsPoe(){ return poeCameraCount() > 0; }
   function recorderPurchasePrice(){
-    var table = NVR_PRICES[recorderBrand()];
+    var brand = recorderBrand();
+    var table = (needsPoe() && NVR_POE_PRICES[brand]) || NVR_PRICES[brand];
     return (table && table[recorderChannels()]) || 0;
   }
   function recorderSellPrice(){ return recorderPurchasePrice() * MARZE * DPH; }
+  // Kolik kabelových kamer se nevejde na PoE porty rekordéru, tolik doplníme 16portovými PoE switchi.
+  function poeSwitchCount(){
+    if(!needsPoe() || groupVal("rekTyp") !== "nvr") return 0;
+    var ports = (NVR_POE_PRICES[recorderBrand()] ? NVR_POE_PORTS[recorderChannels()] : 0) || 0;
+    var chybi = poeCameraCount() - ports;
+    return chybi > 0 ? Math.ceil(chybi / POE_SWITCH_PORTS) : 0;
+  }
+  function poeSwitchSellPrice(){
+    var cena = POE_SWITCH_PRICES[recorderBrand()] || POE_SWITCH_PRICES.hikvision;
+    return poeSwitchCount() * cena * MARZE * DPH;
+  }
   function hddPurchasePrice(tb){
     var tiers = Object.keys(HDD_PRICES).map(Number).sort(function(a,b){ return a-b; });
     for(var i=0;i<tiers.length;i++){ if(tiers[i] >= tb) return HDD_PRICES[tiers[i]]; }
@@ -1954,7 +2000,7 @@ pages.push({
   }
   function materialCost(){
     var camsTotal = state.cameras.reduce(function(sum,c){ return sum + cameraSellPrice(c) * c.pocet; }, 0);
-    var rekTotal = groupVal("rekTyp") === "nvr" ? recorderSellPrice() + hddSellPrice() : 0;
+    var rekTotal = groupVal("rekTyp") === "nvr" ? recorderSellPrice() + hddSellPrice() + poeSwitchSellPrice() : 0;
     return camsTotal + rekTotal;
   }
   function totalPrice(){
@@ -2091,7 +2137,7 @@ pages.push({
     html += '<div class="wiz-sum-row"><span>Typ objektu</span><b>' + (OBJ_LABELS[groupVal("objTyp")]||"–") + '</b></div>';
     html += '<div class="wiz-sum-row"><span>Prostředí</span><b>' + (prostr==="interier"?"Interiér":prostr==="exterier"?"Exteriér":"Kombinace") + '</b></div>';
     html += '<div class="wiz-sum-row"><span>Počet kamer</span><b>' + n + '</b></div>';
-    html += '<div class="wiz-sum-row"><span>Rekordér</span><b>' + (groupVal("rekTyp")==="nvr" ? (rekTypLabel("nvr") + ', ' + recorderChannels() + ' kanálů') : rekTypLabel("bez")) + '</b></div>';
+    html += '<div class="wiz-sum-row"><span>Rekordér</span><b>' + rekorderPopis() + '</b></div>';
     html += '<div class="wiz-sum-row"><span>Orientační úložiště</span><b>' + fmtTb(estimateHdd()) + '</b></div>';
     html += '<div class="cam-list">' + state.cameras.map(function(c){
       return '<div class="cam-item">' +
@@ -2205,7 +2251,7 @@ pages.push({
       kamery: state.cameras.map(function(c){
         return { umisteni: c.umisteni, typ: CAM_LABELS[c.typ], znacka: BRAND_LABELS[c.znacka], barva: BARVA_LABELS[c.barva], rozliseni: c.rozliseni + " Mpx", zorny_uhel: ANGLE_LABELS[c.uhel], prostredi: ENV_LABELS[c.prostredi], ip_rating: ENV_BADGES[c.prostredi], nocni_videni: c.nocni, prenos_dat: TRANSFER_LABELS[c.prenos], pocet: c.pocet, cena_ks: Math.round(cameraSellPrice(c)) };
       }),
-      rekorder: { typ: rekTypLabel(groupVal("rekTyp")), kanalu: groupVal("rekTyp")==="nvr" ? recorderChannels() : 0, hdd_doporuceni: fmtTb(estimateHdd()), cena: groupVal("rekTyp")==="nvr" ? Math.round(recorderSellPrice()) : 0 },
+      rekorder: { typ: rekorderPopis(), kanalu: groupVal("rekTyp")==="nvr" ? recorderChannels() : 0, poe: needsPoe(), poe_switche: poeSwitchCount(), hdd_doporuceni: fmtTb(estimateHdd()), cena: groupVal("rekTyp")==="nvr" ? Math.round(recorderSellPrice() + poeSwitchSellPrice()) : 0 },
       cena: {
         material: Math.round(materialCost()),
         prace_montaz: Math.round(laborCost()),
