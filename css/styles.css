@@ -447,7 +447,7 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 
 /* detail meta */
 .detail-meta { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.8rem; }
-.detail-meta .m b { font-family: var(--font-head); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); display: block; margin-bottom: 0.2rem; }
+.detail-meta .m b { font-family: var(--font-head); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); display: block; margin-bottom: 0.2rem; }
 .detail-meta .m span { font-size: 1.05rem; color: var(--text); font-weight: 600; }
 
 /* owner contact card */
