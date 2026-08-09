@@ -318,9 +318,9 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 .review .stars svg { width: 18px; height: 18px; }
 .review p { color: var(--text-2); font-size: 0.98rem; flex: 1; }
 .review .who { margin-top: 1.5rem; display: flex; align-items: center; gap: 0.8rem; }
-.review .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: var(--on-gold); display: grid; place-items: center; font-family: var(--font-head); font-weight: 800; }
+.review .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: var(--on-gold); display: grid; place-items: center; font-family: var(--font-head); font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; }
 .review .who b { display: block; color: var(--text); font-size: 0.97rem; }
-.review .who span { font-size: 0.82rem; color: var(--muted); }
+.review .who > span:not(.avatar) { font-size: 0.82rem; color: var(--muted); }
 .review-src { display: inline-flex; align-items: center; gap: 0.32rem; font-size: 0.82rem; color: var(--muted); transition: color var(--t); }
 .review-src:hover { color: var(--gold); }
 .review-src svg { width: 13px; height: 13px; }
