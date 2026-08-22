@@ -228,9 +228,17 @@
     // Kam má odskok na kotvu nadpis usadit. Musí sedět s rozhodovací linkou níž — kdyby
     // nadpis přistál pod ní, spy by po kliknutí označil předchozí písmeno. Počítá se
     // z reálné výšky lišty, aby to platilo i na mobilu a při jiné velikosti písma.
-    function syncOffset() {
+    // Spodní hrana lišty v rozvržení. Nepoužívá getBoundingClientRect, protože zasunutá
+    // lišta je posunutá transformem mimo obrazovku a rect by vracel záporné hodnoty.
+    function barBottom() {
       var stickyTop = parseFloat(getComputedStyle(glNav).top) || 0;
-      var offset = Math.round(stickyTop + glNav.getBoundingClientRect().height) + 8;
+      return stickyTop + glNav.offsetHeight;
+    }
+
+    function syncOffset() {
+      var offset = Math.round(barBottom()) + 8;
+      // o kolik lištu posunout, aby zmizela nad horní hranou — stejný zdroj jako offset kotev
+      document.documentElement.style.setProperty("--gl-tuck", "-" + (offset + 8) + "px");
       // Prohlížeč sčítá scroll-padding-top scrollovaného elementu se scroll-margin-top cíle,
       // takže do proměnné patří jen zbytek nad rámec globálního odsazení na <html>.
       var pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
@@ -239,7 +247,7 @@
 
     function mark() {
       // rozhoduje spodní hrana přišpendlené lišty; tolerance pokryje nadpis, který na ní právě sedí
-      var line = glNav.getBoundingClientRect().bottom + 20;
+      var line = barBottom() + 20;
       var idx = 0;
       for (var i = 0; i < heads.length; i++) {
         if (heads[i].getBoundingClientRect().top <= line) idx = i; else break;
@@ -256,15 +264,35 @@
       current = idx;
     }
 
+    // Na mobilu zabírá rejstřík čtvrtinu obrazovky, proto se při scrollu dolů zasune
+    // a při scrollu nahoru zase vyjede. Na širokých displejích zůstává pořád vidět.
+    var narrow = window.matchMedia("(max-width: 700px)");
+    var lastY = window.scrollY;
+    var holdUntil = 0;
+
+    function tuck() {
+      if (!narrow.matches) { glNav.classList.remove("is-tucked"); lastY = window.scrollY; return; }
+      var y = window.scrollY;
+      if (Date.now() < holdUntil) { lastY = y; return; }
+      var dy = y - lastY;
+      if (Math.abs(dy) < 6) return;
+      // u horního okraje stránky ať je rejstřík vždycky po ruce
+      if (y < 240 || dy < 0) glNav.classList.remove("is-tucked");
+      else glNav.classList.add("is-tucked");
+      lastY = y;
+    }
+
     var ticking = false;
     function onGlScroll() {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(function () { ticking = false; mark(); });
+      requestAnimationFrame(function () { ticking = false; tuck(); mark(); });
     }
     // po kliknutí označíme cíl rovnou, ať zvýraznění nečeká na dojezd plynulého scrollu
     links.forEach(function (a, i) {
       a.addEventListener("click", function () {
+        glNav.classList.remove("is-tucked");
+        holdUntil = Date.now() + 900;
         if (current > -1) {
           links[current].classList.remove("is-current");
           links[current].removeAttribute("aria-current");
@@ -277,6 +305,7 @@
 
     window.addEventListener("scroll", onGlScroll, { passive: true });
     window.addEventListener("resize", function () { syncOffset(); onGlScroll(); }, { passive: true });
+    if (narrow.addEventListener) narrow.addEventListener("change", function () { syncOffset(); tuck(); });
     syncOffset();
     mark();
   })();

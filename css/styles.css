@@ -731,3 +731,13 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 .gl-cta p { color: var(--text-2); max-width: 56ch; margin: 0 auto 1.5rem; }
 .gl-cta-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
 
+
+/* Na mobilu se 23 písmen zalomí do několika řádků — menší dlaždice ušetří jeden celý
+   řádek přišpendlené lišty, aniž by se dostaly pod rozumnou velikost pro prst. */
+@media (max-width: 700px) {
+  .gl-nav { gap: 0.3rem; padding-block: 0.6rem; transition: transform 260ms var(--ease-out); }
+  .gl-nav a { min-width: 2rem; height: 2rem; padding: 0 0.3rem; font-size: 0.84rem; border-radius: 8px; }
+  /* posun dopočítá main.js z výšky lišty; záloha stačí i na nejvyšší variantu */
+  .gl-nav.is-tucked { transform: translateY(var(--gl-tuck, -300px)); }
+}
+@media (prefers-reduced-motion: reduce) { .gl-nav { transition: none; } }
