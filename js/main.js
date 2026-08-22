@@ -225,9 +225,18 @@
     if (!links.length || heads.indexOf(null) !== -1) return;
     var current = -1;
 
+    // Kam má odskok na kotvu nadpis usadit. Musí sedět s rozhodovací linkou níž — kdyby
+    // nadpis přistál pod ní, spy by po kliknutí označil předchozí písmeno. Počítá se
+    // z reálné výšky lišty, aby to platilo i na mobilu a při jiné velikosti písma.
+    function syncOffset() {
+      var stickyTop = parseFloat(getComputedStyle(glNav).top) || 0;
+      var offset = Math.round(stickyTop + glNav.getBoundingClientRect().height) + 8;
+      document.documentElement.style.setProperty("--gl-anchor-offset", offset + "px");
+    }
+
     function mark() {
-      // rozhoduje spodní hrana přišpendlené lišty: poslední nadpis nad ní je ten aktuální
-      var line = glNav.getBoundingClientRect().bottom + 1;
+      // rozhoduje spodní hrana přišpendlené lišty; tolerance pokryje nadpis, který na ní právě sedí
+      var line = glNav.getBoundingClientRect().bottom + 20;
       var idx = 0;
       for (var i = 0; i < heads.length; i++) {
         if (heads[i].getBoundingClientRect().top <= line) idx = i; else break;
@@ -256,8 +265,22 @@
       ticking = true;
       requestAnimationFrame(function () { ticking = false; mark(); });
     }
+    // po kliknutí označíme cíl rovnou, ať zvýraznění nečeká na dojezd plynulého scrollu
+    links.forEach(function (a, i) {
+      a.addEventListener("click", function () {
+        if (current > -1) {
+          links[current].classList.remove("is-current");
+          links[current].removeAttribute("aria-current");
+        }
+        a.classList.add("is-current");
+        a.setAttribute("aria-current", "true");
+        current = i;
+      });
+    });
+
     window.addEventListener("scroll", onGlScroll, { passive: true });
-    window.addEventListener("resize", onGlScroll, { passive: true });
+    window.addEventListener("resize", function () { syncOffset(); onGlScroll(); }, { passive: true });
+    syncOffset();
     mark();
   })();
 

@@ -713,8 +713,9 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 .gl-group { margin-bottom: 2.4rem; }
 .gl-letter { font-size: 1.5rem; color: var(--gold); padding-bottom: 0.5rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
 .gl-item { padding: 1.1rem 0; border-bottom: 1px solid var(--border-soft); }
-/* Odskok na kotvu musí počítat s hlavičkou i s lištou rejstříku nad obsahem. */
-.gl-item, .gl-letter { scroll-margin-top: 170px; }
+/* Odskok na kotvu musí počítat s hlavičkou i s lištou rejstříku nad obsahem.
+   Přesnou hodnotu dopočítá main.js z výšky lišty, 150px je záloha bez JS. */
+.gl-item, .gl-letter { scroll-margin-top: var(--gl-anchor-offset, 150px); }
 .gl-item:last-child { border-bottom: 0; }
 .gl-item h3 { font-size: 1.12rem; margin-bottom: 0.4rem; }
 .gl-item h3 .gl-anchor { color: var(--text); }
