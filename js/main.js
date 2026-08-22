@@ -216,6 +216,51 @@
     });
   });
 
+  /* ---- Slovník pojmů: v rejstříku svítí písmeno sekce, ve které uživatel právě je ---- */
+  (function () {
+    var glNav = document.querySelector(".gl-nav");
+    if (!glNav) return;
+    var links = [].slice.call(glNav.querySelectorAll("a"));
+    var heads = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+    if (!links.length || heads.indexOf(null) !== -1) return;
+    var current = -1;
+
+    function mark() {
+      // rozhoduje spodní hrana přišpendlené lišty: poslední nadpis nad ní je ten aktuální
+      var line = glNav.getBoundingClientRect().bottom + 1;
+      var idx = 0;
+      for (var i = 0; i < heads.length; i++) {
+        if (heads[i].getBoundingClientRect().top <= line) idx = i; else break;
+      }
+      // na samém konci stránky už se poslední sekce nad linku nedostane
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) idx = heads.length - 1;
+      if (idx === current) return;
+      if (current > -1) {
+        links[current].classList.remove("is-current");
+        links[current].removeAttribute("aria-current");
+      }
+      links[idx].classList.add("is-current");
+      links[idx].setAttribute("aria-current", "true");
+      current = idx;
+      // na mobilu je lišta vodorovně posuvná — aktivní písmeno musí zůstat vidět
+      if (glNav.scrollWidth > glNav.clientWidth) {
+        var a = links[idx], left = a.offsetLeft, right = left + a.offsetWidth;
+        if (left < glNav.scrollLeft) glNav.scrollLeft = left - 12;
+        else if (right > glNav.scrollLeft + glNav.clientWidth) glNav.scrollLeft = right - glNav.clientWidth + 12;
+      }
+    }
+
+    var ticking = false;
+    function onGlScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; mark(); });
+    }
+    window.addEventListener("scroll", onGlScroll, { passive: true });
+    window.addEventListener("resize", onGlScroll, { passive: true });
+    mark();
+  })();
+
   /* ---- Footer year ---- */
   var y = document.querySelector("[data-year]"); if (y) y.textContent = new Date().getFullYear();
 })();
