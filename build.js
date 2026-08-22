@@ -51,6 +51,7 @@ const ARES_URL = "https://ares.gov.cz/ekonomicke-subjekty?ico=" + ICO;
 const DS_ID = "8e9pivu";
 const DS_URL = "https://www.mojedatovaschranka.cz/sds/detail.do?dbid=8e9pivu";
 const GOOGLE_REVIEWS = "https://www.google.com/maps/place/Duo+alarm/@50.2082022,15.8332223,17z/data=!4m8!3m7!1s0x25e977f666aba317:0x39664694ce8ca6c5!8m2!3d50.2082022!4d15.8332223!9m1!1b1!16s%2Fg%2F11x73b4qpd?entry=ttu";
+const LINKEDIN_COMPANY = "https://www.linkedin.com/company/duo-alarm/";
 const GOOGLE_MAPS_PLACE = "https://www.google.com/maps/place/Duo+alarm/@50.2082022,15.8325786,19z/data=!3m1!4b1!4m6!3m5!1s0x25e977f666aba317:0x39664694ce8ca6c5!8m2!3d50.2082022!4d15.8332223!16s%2Fg%2F11x73b4qpd?entry=ttu&g_ep=EgoyMDI2MDYyOS4wIKXMDSoASAFQAw%3D%3D";
 const SITE_URL = "https://www.duoalarm.cz";
 
@@ -80,7 +81,7 @@ const LOCAL_BUSINESS_SCHEMA = `<script type="application/ld+json">${JSON.stringi
     { "@type": "AdministrativeArea", "name": "Královéhradecký kraj" },
     { "@type": "AdministrativeArea", "name": "Liberecký kraj" },
   ],
-  "sameAs": [GOOGLE_REVIEWS],
+  "sameAs": [GOOGLE_REVIEWS, LINKEDIN_COMPANY],
 })}</script>`;
 const LINKEDIN = "https://www.linkedin.com/in/ondrej-linka/";
 
@@ -264,6 +265,7 @@ function footer(base) {
         <div class="footer-contact">
           <a href="tel:${TEL_HREF}">${I.phone} ${TEL}</a>
           <a href="mailto:${EMAIL}">${I.mail} ${EMAIL}</a>
+          <a href="${LINKEDIN_COMPANY}" target="_blank" rel="noopener">${I.linkedin} LinkedIn</a>
         </div>
       </div>
       <div class="footer-col">
