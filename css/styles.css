@@ -735,12 +735,10 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 /* Na mobilu se 23 písmen zalomí do několika řádků — menší dlaždice ušetří jeden celý
    řádek přišpendlené lišty, aniž by se dostaly pod rozumnou velikost pro prst. */
 @media (max-width: 700px) {
-  /* Pomalejší a symetrická křivka: --ease-out je expo, které skoro celý pohyb odbude
-     v prvních milisekundách a působí trhaně. Ease-in-out rozloží pohyb rovnoměrně
-     do obou směrů — zasunutí i vyjetí. */
-  .gl-nav { gap: 0.3rem; padding-block: 0.6rem; transition: transform 700ms cubic-bezier(0.4, 0, 0.2, 1); }
+  .gl-nav { gap: 0.3rem; padding-block: 0.6rem; }
+  /* Zasouvání dolů kopíruje scroll a nesmí být animované, jinak by se za pohybem
+     opožďovalo. Animuje se jen návrat při scrollu nahoru, který zapíná main.js. */
+  .gl-nav.is-sliding { transition: transform 700ms cubic-bezier(0.4, 0, 0.2, 1); }
   .gl-nav a { min-width: 2rem; height: 2rem; padding: 0 0.3rem; font-size: 0.84rem; border-radius: 8px; }
-  /* posun dopočítá main.js z výšky lišty; záloha stačí i na nejvyšší variantu */
-  .gl-nav.is-tucked { transform: translateY(var(--gl-tuck, -300px)); }
 }
-@media (prefers-reduced-motion: reduce) { .gl-nav { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .gl-nav, .gl-nav.is-sliding { transition: none; } }

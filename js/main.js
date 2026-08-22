@@ -237,8 +237,6 @@
 
     function syncOffset() {
       var offset = Math.round(barBottom()) + 8;
-      // o kolik lištu posunout, aby zmizela nad horní hranou — stejný zdroj jako offset kotev
-      document.documentElement.style.setProperty("--gl-tuck", "-" + (offset + 8) + "px");
       // Prohlížeč sčítá scroll-padding-top scrollovaného elementu se scroll-margin-top cíle,
       // takže do proměnné patří jen zbytek nad rámec globálního odsazení na <html>.
       var pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
@@ -270,16 +268,36 @@
     var lastY = window.scrollY;
     var holdUntil = 0;
 
+    var tucked = 0;   // o kolik px je lišta aktuálně vysunutá nad horní okraj
+    var upAccum = 0;  // nasbíraný pohyb nahoru, aby lištu nevytáhlo drobné cuknutí
+
+    function showBar() {
+      tucked = 0;
+      glNav.classList.add("is-sliding");
+      glNav.style.transform = "";
+    }
+
     function tuck() {
-      if (!narrow.matches) { glNav.classList.remove("is-tucked"); lastY = window.scrollY; return; }
+      if (!narrow.matches) { showBar(); glNav.classList.remove("is-sliding"); lastY = window.scrollY; return; }
       var y = window.scrollY;
       if (Date.now() < holdUntil) { lastY = y; return; }
       var dy = y - lastY;
-      if (Math.abs(dy) < 6) return;
-      // u horního okraje stránky ať je rejstřík vždycky po ruce
-      if (y < 240 || dy < 0) glNav.classList.remove("is-tucked");
-      else glNav.classList.add("is-tucked");
       lastY = y;
+      if (!dy) return;
+      if (dy > 0) {
+        // Dolů lišta neanimuje — posouvá se přesně o to, o co odjela stránka,
+        // takže zmizí stejně přirozeně, jako by přišpendlená nebyla.
+        if (y < 240) return;
+        var dist = Math.round(barBottom()) + 16;
+        tucked = Math.min(dist, tucked + dy);
+        upAccum = 0;
+        glNav.classList.remove("is-sliding");
+        glNav.style.transform = "translateY(-" + tucked + "px)";
+      } else if (tucked > 0) {
+        // Nahoru se vrací plynule, ale až po zřetelném pohybu.
+        upAccum -= dy;
+        if (upAccum >= 8) { upAccum = 0; showBar(); }
+      }
     }
 
     var ticking = false;
@@ -291,7 +309,7 @@
     // po kliknutí označíme cíl rovnou, ať zvýraznění nečeká na dojezd plynulého scrollu
     links.forEach(function (a, i) {
       a.addEventListener("click", function () {
-        glNav.classList.remove("is-tucked");
+        showBar();
         holdUntil = Date.now() + 900;
         if (current > -1) {
           links[current].classList.remove("is-current");
