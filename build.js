@@ -1182,7 +1182,7 @@ pages.push({
       "Srozumitelné vysvětlení pojmů, na které narazíte při pořizování alarmu, kamer nebo elektroinstalace. U každého hesla najdete odkaz na související službu.") +
 `<section class="section section--tight">
   <div class="container">
-    <nav class="gl-nav" aria-label="Rejstřík podle písmen" data-reveal>
+    <nav class="gl-nav" aria-label="Rejstřík podle písmen">
       ${GLOSSARY_LETTERS.map(l => `<a href="#pismeno-${l.toLowerCase()}">${l}</a>`).join("")}
     </nav>
     ${GLOSSARY_LETTERS.map(l => `
