@@ -71,6 +71,11 @@ const LOCAL_BUSINESS_SCHEMA = `<script type="application/ld+json">${JSON.stringi
     "addressCountry": "CZ",
   },
   "geo": { "@type": "GeoCoordinates", "latitude": 50.2081887, "longitude": 15.8332183 },
+  // Shodné s otevírací dobou na profilu Firmy.cz — Google i katalogy porovnávají NAP včetně hodin.
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday"], "opens": "08:00", "closes": "17:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "08:00", "closes": "18:00" },
+  ],
   "areaServed": [
     { "@type": "AdministrativeArea", "name": "Královéhradecký kraj" },
     { "@type": "AdministrativeArea", "name": "Liberecký kraj" },
