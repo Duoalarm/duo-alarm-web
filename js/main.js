@@ -254,12 +254,6 @@
       links[idx].classList.add("is-current");
       links[idx].setAttribute("aria-current", "true");
       current = idx;
-      // na mobilu je lišta vodorovně posuvná — aktivní písmeno musí zůstat vidět
-      if (glNav.scrollWidth > glNav.clientWidth) {
-        var a = links[idx], left = a.offsetLeft, right = left + a.offsetWidth;
-        if (left < glNav.scrollLeft) glNav.scrollLeft = left - 12;
-        else if (right > glNav.scrollLeft + glNav.clientWidth) glNav.scrollLeft = right - glNav.clientWidth + 12;
-      }
     }
 
     var ticking = false;

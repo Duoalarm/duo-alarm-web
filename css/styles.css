@@ -731,10 +731,3 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 .gl-cta p { color: var(--text-2); max-width: 56ch; margin: 0 auto 1.5rem; }
 .gl-cta-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
 
-/* Na úzkých displejích by 23 písmen ve třech řádcích ukrojilo půl obrazovky —
-   necháme je v jednom řádku s vodorovným posunem. */
-@media (max-width: 700px) {
-  .gl-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  .gl-nav::-webkit-scrollbar { display: none; }
-  .gl-nav a { flex: 0 0 auto; }
-}
