@@ -697,3 +697,24 @@ body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
   .band-gold { padding: 1.2rem; }
   .quote-card { padding: 1rem; }
 }
+
+/* glossary — /slovnik-pojmu */
+.gl-nav { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 2.6rem; }
+.gl-nav a { display: grid; place-items: center; min-width: 2.4rem; height: 2.4rem; padding: 0 0.5rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); font-family: var(--font-head); font-weight: 700; font-size: 0.92rem; color: var(--text-2); transition: color var(--t), border-color var(--t), background var(--t); }
+.gl-nav a:hover { color: var(--on-gold); background: var(--gold); border-color: var(--gold); }
+.gl-group { margin-bottom: 2.4rem; }
+.gl-letter { font-size: 1.5rem; color: var(--gold); padding-bottom: 0.5rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+.gl-item { padding: 1.1rem 0; border-bottom: 1px solid var(--border-soft); }
+.gl-item:last-child { border-bottom: 0; }
+.gl-item h3 { font-size: 1.12rem; margin-bottom: 0.4rem; }
+.gl-item h3 .gl-anchor { color: var(--text); }
+.gl-item h3 .gl-anchor:hover { color: var(--gold); }
+.gl-item p { color: var(--text-2); max-width: 68ch; }
+.gl-more { margin-top: 0.55rem; font-size: 0.88rem; color: var(--muted); }
+.gl-more a { color: var(--gold); font-weight: 600; }
+.gl-more a:hover { text-decoration: underline; }
+.gl-sep { margin: 0 0.35rem; }
+.gl-cta { margin-top: 3rem; padding: 2.2rem; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.gl-cta h2 { font-size: 1.5rem; margin-bottom: 0.6rem; }
+.gl-cta p { color: var(--text-2); max-width: 56ch; margin: 0 auto 1.5rem; }
+.gl-cta-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
