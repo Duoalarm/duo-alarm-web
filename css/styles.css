@@ -188,7 +188,9 @@ body.menu-open .nav-toggle span::before { transform: translateY(6px) rotate(45de
 body.menu-open .nav-toggle span::after { transform: translateY(-6px) rotate(-45deg); }
 
 /* ---------- Mobile menu ---------- */
-.mobile-menu { position: fixed; inset: 78px 0 0 0; z-index: 90; background: var(--bg); padding: 1.5rem clamp(1.1rem, 4vw, 2rem) 2.5rem; overflow-y: auto; transform: translateX(100%); transition: transform var(--t) var(--ease); visibility: hidden; }
+/* visibility patří do transition, jinak se při zavírání přepne na hidden okamžitě
+   a odjezd panelu není vidět — otevření se přitom animuje správně. */
+.mobile-menu { position: fixed; inset: 78px 0 0 0; z-index: 90; background: var(--bg); padding: 1.5rem clamp(1.1rem, 4vw, 2rem) 2.5rem; overflow-y: auto; transform: translateX(100%); transition: transform var(--t) var(--ease), visibility var(--t); visibility: hidden; }
 body.menu-open .mobile-menu { transform: translateX(0); visibility: visible; }
 .mobile-menu a:not(.btn) { display: block; padding: 0.9rem 0.4rem; font-family: var(--font-head); font-weight: 600; font-size: 1.12rem; border-bottom: 1px solid var(--border-soft); color: var(--text-2); }
 .mobile-menu a:not(.btn):hover, .mobile-menu a:not(.btn).active { color: var(--gold); }
