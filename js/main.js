@@ -231,7 +231,10 @@
     function syncOffset() {
       var stickyTop = parseFloat(getComputedStyle(glNav).top) || 0;
       var offset = Math.round(stickyTop + glNav.getBoundingClientRect().height) + 8;
-      document.documentElement.style.setProperty("--gl-anchor-offset", offset + "px");
+      // Prohlížeč sčítá scroll-padding-top scrollovaného elementu se scroll-margin-top cíle,
+      // takže do proměnné patří jen zbytek nad rámec globálního odsazení na <html>.
+      var pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+      document.documentElement.style.setProperty("--gl-anchor-offset", Math.max(0, offset - pad) + "px");
     }
 
     function mark() {
